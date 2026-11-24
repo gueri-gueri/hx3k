@@ -4,7 +4,7 @@
 
 import type { Gear, Model, Size, Tone, User } from '@shared/types'
 import { AppError } from './errors'
-import { sampleModel, sampleNam, sampleSlimmableNam } from './sampleNam'
+import { sampleNam, sampleSlimmableNam } from './sampleNam'
 import type { Backend } from './t3k'
 
 export const mockSession = { connected: false }
@@ -108,7 +108,7 @@ function models(toneId: number): Model[] {
     tone_id: toneId,
     architecture_version: arch,
   })
-  return [m(1, 'Gain 4 - SM57', 'lite'), m(2, 'Gain 7 - SM57', 'lite'), m(3, 'Gain 7 - SM57', 'standard'), m(4, 'All sizes', 'custom')]
+  return [m(1, 'Gain 4 - SM57', 'lite'), m(2, 'Gain 7 - SM57', 'lite'), m(3, 'Gain 9 - SM57', 'standard'), m(4, 'All sizes', 'custom')]
 }
 
 const wait = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
@@ -148,8 +148,7 @@ export const mockBackend: Backend = {
     await wait(350)
     const name = `${tones.find((t) => t.id === model.tone_id)?.title ?? 'Sample'} ${model.name}`
     if (model.size === 'lite') return sampleNam({ seed: model.id, metadata: { name } })
-    if (model.size === 'custom') return sampleSlimmableNam(model.id)
-    // The 8-channel size: the converter refuses it, as it would the real one.
-    return JSON.stringify({ ...sampleModel({ seed: model.id, channels: 8 }), metadata: { name } })
+    // Any other A2 size comes as a multi-size file that holds the A2 Lite model, as the real ones do.
+    return sampleSlimmableNam(model.id)
   },
 }

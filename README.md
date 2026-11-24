@@ -28,8 +28,8 @@ and the `.wav` comes out byte for byte the same as the one from its setup page.
 ### What it converts
 
 Only the **A2 Lite** size (a 3-channel WaveNet, 1,871 weights) trained at **48 kHz**: it is the only one the
-HX Stomp's DSP runs. On TONE3000 that is the A2 architecture, Lite size. A `.nam` with several sizes also works; its
-A2 Lite model is the one used. The `.wav` is not a sound: it carries the capture's numbers and only works in the
+HX Stomp's DSP runs. On TONE3000 that is the A2 architecture: every A2 `.nam` carries the Lite size, whatever size it
+lists (a file with several sizes gives up its A2 Lite model). The `.wav` is not a sound: it carries the capture's numbers and only works in the
 NAM A2 Lite block.
 
 The HX Stomp needs HXtra installed: <https://wisemandenny.github.io/hxtra/web/>.

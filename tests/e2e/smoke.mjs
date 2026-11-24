@@ -170,22 +170,13 @@ try {
   assert.equal(await focused(), 'main.content')
   await shot('tone')
 
-  // Both A2 Lite models convert, and the result is said, not only shown.
-  await page.getByRole('button', { name: 'Convert all A2 Lite (2)' }).click()
-  await page.locator('.row-ok', { hasText: 'Saved as Plexi Lead 100 - Gain 4 - SM57 NAM.wav' }).waitFor()
-  await page.locator('.row-ok', { hasText: 'Saved as Plexi Lead 100 - Gain 7 - SM57 NAM.wav' }).waitFor()
-  for (const name of ['Plexi Lead 100 - Gain 4 - SM57 NAM.wav', 'Plexi Lead 100 - Gain 7 - SM57 NAM.wav']) {
-    assert.equal(statSync(join(outputDir, name)).size, WAV_BYTES, name)
-  }
-  await page.locator('.sr-only[role="status"]', { hasText: 'Saved as Plexi Lead 100 - Gain 7' }).waitFor({ state: 'attached' })
-
-  // The 8-channel size is refused, in words; the multi-size file gives up its A2 Lite model.
-  const tries = page.getByRole('button', { name: 'Try to convert' })
-  assert.equal(await tries.count(), 2)
-  await tries.first().click()
-  await page.getByText('No A2 Lite model inside').waitFor()
-  await page.getByRole('button', { name: 'Try to convert' }).last().click()
-  await page.locator('.row-ok', { hasText: 'Saved as Plexi Lead 100 - All sizes NAM.wav' }).waitFor()
+  // Every A2 model converts, whatever size it lists (a multi-size file gives up its
+  // A2 Lite model), and the result is said, not only shown.
+  const files = ['Gain 4 - SM57', 'Gain 7 - SM57', 'Gain 9 - SM57', 'All sizes'].map((m) => `Plexi Lead 100 - ${m} NAM.wav`)
+  await page.getByRole('button', { name: 'Convert all (4)' }).click()
+  for (const name of files) await page.locator('.row-ok', { hasText: `Saved as ${name}` }).waitFor()
+  for (const name of files) assert.equal(statSync(join(outputDir, name)).size, WAV_BYTES, name)
+  await page.locator('.sr-only[role="status"]', { hasText: 'Saved as Plexi Lead 100 - All sizes' }).waitFor({ state: 'attached' })
   await shot('tone-converted')
 
   // Converting again writes over the capture's own file.
@@ -197,6 +188,7 @@ try {
       'Plexi Lead 100 - All sizes NAM.wav',
       'Plexi Lead 100 - Gain 4 - SM57 NAM.wav',
       'Plexi Lead 100 - Gain 7 - SM57 NAM.wav',
+      'Plexi Lead 100 - Gain 9 - SM57 NAM.wav',
       'TONE3000 credits.txt',
     ].sort(),
   )
@@ -279,8 +271,8 @@ try {
   // The converted captures, each marked with where it came from.
   await menu('Converted').click()
   await page.getByText('My own amp NAM.wav').waitFor()
-  assert.equal(await page.locator('.rows > .row').count(), 4)
-  assert.equal(await page.locator('.thumb-mark img[alt="TONE3000"]').count(), 3)
+  assert.equal(await page.locator('.rows > .row').count(), 5)
+  assert.equal(await page.locator('.thumb-mark img[alt="TONE3000"]').count(), 4)
   await shot('converted')
 
   // Removing asks first, with the keyboard on "Cancel"; saying no returns it to "Remove".

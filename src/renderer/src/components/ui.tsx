@@ -55,7 +55,7 @@ export function Creator({
   )
 }
 
-const FIT_CLASS: Record<Fit, string> = { ready: 'chip chip-ready', maybe: 'chip chip-line chip-off', no: 'chip chip-line chip-off' }
+const FIT_CLASS: Record<Fit, string> = { ready: 'chip chip-ready', no: 'chip chip-line chip-off' }
 
 /** Whether a tone or a model can be converted for the HX Stomp. */
 export function FitChip({ fit }: { fit: Fit }): ReactNode {

@@ -33,19 +33,16 @@ describe('file names', () => {
 })
 
 describe('what the HX Stomp can play', () => {
-  it('rates a model by architecture and size', () => {
-    expect(modelFit({ architecture_version: '2', size: 'lite' })).toBe('ready')
-    expect(modelFit({ architecture_version: '2', size: 'standard' })).toBe('maybe')
-    expect(modelFit({ architecture_version: '2', size: 'custom' })).toBe('maybe')
-    expect(modelFit({ architecture_version: '1', size: 'lite' })).toBe('no')
-    expect(modelFit({ architecture_version: null, size: 'standard' })).toBe('no')
+  it('rates a model by architecture: every A2 file carries the A2 Lite model', () => {
+    expect(modelFit({ architecture_version: '2' })).toBe('ready')
+    expect(modelFit({ architecture_version: '1' })).toBe('no')
+    expect(modelFit({ architecture_version: null })).toBe('no')
   })
 
   it('rates a tone from its list entry', () => {
-    expect(toneFit({ format: 'nam', a2_models_count: 3, sizes: ['standard', 'lite'] })).toBe('ready')
-    expect(toneFit({ format: 'nam', a2_models_count: 3, sizes: ['standard'] })).toBe('maybe')
-    expect(toneFit({ format: 'nam', a2_models_count: 0, sizes: ['lite'] })).toBe('no')
-    expect(toneFit({ format: 'ir', a2_models_count: 0, sizes: [] })).toBe('no')
+    expect(toneFit({ format: 'nam', a2_models_count: 3 })).toBe('ready')
+    expect(toneFit({ format: 'nam', a2_models_count: 0 })).toBe('no')
+    expect(toneFit({ format: 'ir', a2_models_count: 0 })).toBe('no')
   })
 
   it('offers the A2 Lite models first, otherwise in the given order', () => {

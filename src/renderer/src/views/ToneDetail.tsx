@@ -220,7 +220,7 @@ function ModelRow({ model, row, disabled, onConvert }: { model: Model; row: RowS
       <div className="row-main">
         <div className="row-title selectable">{model.name}</div>
         <div className="chips">
-          <span className={fit === 'ready' ? 'chip chip-ready' : 'chip chip-line chip-off'} title={fit === 'ready' ? t('fit.ready.title') : t('tone.try.title')}>
+          <span className={fit === 'ready' ? 'chip chip-ready' : 'chip chip-line chip-off'} title={fit === 'ready' ? t('fit.ready.title') : t('fit.no.title')}>
             {fit === 'ready' && <span className="dot" />}
             {size}
           </span>
@@ -257,9 +257,8 @@ function ModelRow({ model, row, disabled, onConvert }: { model: Model; row: RowS
             className={fit === 'ready' && row.status !== 'done' ? 'btn btn-accent btn-sm' : 'btn btn-outline btn-sm'}
             disabled={disabled}
             onClick={onConvert}
-            title={fit === 'ready' ? undefined : t('tone.try.title')}
           >
-            {row.status === 'done' ? t('tone.convertAgain') : fit === 'ready' ? t('tone.convert') : t('tone.try')}
+            {row.status === 'done' ? t('tone.convertAgain') : t('tone.convert')}
           </button>
         )}
       </div>
