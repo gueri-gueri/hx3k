@@ -82,6 +82,21 @@ with no key and no network. It only works outside the packaged app.
 | `npm run dist` | Packages with electron-builder into `release/` (dmg/zip, NSIS, AppImage/deb) |
 | `npm run icon` | Regenerates `build/icon.png` from `build/icon.svg` |
 
+### Releasing
+
+Set the new `version` in `package.json`, commit it, then push a tag with the same number and a `v`:
+
+```bash
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+[`release.yml`](.github/workflows/release.yml) runs the tests, packages the app on macOS, Windows and Linux, and
+opens a **draft** release with the installers. Publish it from the repository's Releases page. Started by hand from
+the Actions tab, the workflow only packages: the installers stay in the run's artifacts.
+
+The installers are not signed with a certificate. macOS asks for *System Settings → Privacy & Security → Open Anyway*
+on first launch, and Windows shows SmartScreen's *More info → Run anyway*.
+
 ## How it is built
 
 | Path | Role |

@@ -18,6 +18,11 @@ extraResources:
 
 mac:
   category: public.app-category.music
+  # There is no Developer ID certificate, so the signature is ad-hoc: without
+  # any, Apple Silicon calls a downloaded app damaged. The hardened runtime is
+  # off because, ad-hoc, it stops the app from loading Electron's own frameworks.
+  identity: "-"
+  hardenedRuntime: false
   target:
     - dmg
     - zip
@@ -32,6 +37,8 @@ nsis:
 
 linux:
   category: Audio
+  # The .deb does not build without a maintainer.
+  maintainer: HX3K contributors <gueri-gueri@users.noreply.github.com>
   target:
     - AppImage
     - deb
