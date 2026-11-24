@@ -74,7 +74,7 @@ export function useScreenTitle(title: string | null | undefined): void {
   const { announce } = useApp()
   useEffect(() => {
     if (!title) return
-    document.title = `${title} · HXtra 3000`
+    document.title = `${title} · HX3K`
     announce(title)
   }, [title, announce])
 }

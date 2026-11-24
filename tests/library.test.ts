@@ -7,7 +7,7 @@ import type { ConversionInfo, ToneRef } from '../src/shared/types'
 // Where the .wav files go and what is remembered about them, on a real
 // (temporary) folder.
 
-const work = mkdtempSync(join(tmpdir(), 'hxtra3000-library-'))
+const work = mkdtempSync(join(tmpdir(), 'hx3k-library-'))
 const outputDir = join(work, 'out')
 
 vi.mock('electron', () => ({

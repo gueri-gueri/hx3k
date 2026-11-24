@@ -1,6 +1,6 @@
 import { app } from 'electron'
 
-export const APP_NAME = 'HXtra 3000'
+export const APP_NAME = 'HX3K'
 
 export const API_BASE = 'https://www.tone3000.com'
 
@@ -25,4 +25,4 @@ const fromBuild = (import.meta.env.MAIN_VITE_T3K_PUBLISHABLE_KEY ?? '').trim()
 export const BUILD_CLIENT_ID = isPublishableKey(fromBuild) && fromBuild !== 't3k_pub_your_key_here' ? fromBuild : ''
 
 /** Development only: sample data stands in for TONE3000, so the UI runs without a key. */
-export const MOCK = process.env['HX3000_MOCK'] === '1' && !app.isPackaged
+export const MOCK = process.env['HX3K_MOCK'] === '1' && !app.isPackaged

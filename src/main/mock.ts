@@ -1,4 +1,4 @@
-// Development only (HX3000_MOCK=1, never in a packaged app): made-up tones that
+// Development only (HX3K_MOCK=1, never in a packaged app): made-up tones that
 // stand in for TONE3000, so the screens can be worked on and tested without a
 // key or a network. Nothing here is real catalog content.
 

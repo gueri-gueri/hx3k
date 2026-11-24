@@ -1,5 +1,5 @@
 // A made-up capture with the A2 Lite shape, for the tests and for the sample
-// data of development (HX3000_MOCK=1). Its weights are noise: it is not a sound.
+// data of development (HX3K_MOCK=1). Its weights are noise: it is not a sound.
 
 const KERNEL = [...Array<number>(14).fill(6), 15, 15, ...Array<number>(7).fill(6)]
 const DILATION = [1, 3, 7, 17, 41, 101, 239, 1, 3, 7, 17, 41, 101, 239, 1, 13, 1, 3, 7, 17, 41, 101, 239]

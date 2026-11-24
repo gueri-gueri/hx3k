@@ -1,6 +1,6 @@
 {
-  "name": "hxtra-3000",
-  "productName": "HXtra 3000",
+  "name": "hx3k",
+  "productName": "HX3K",
   "version": "0.1.0",
   "private": true,
   "description": "Turns TONE3000 NAM A2 Lite captures into the User IR .wav files that HXtra's NAM A2 Lite block loads on the HX Stomp.",

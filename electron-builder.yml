@@ -1,6 +1,6 @@
-appId: app.hxtra3000.desktop
-productName: HXtra 3000
-copyright: Copyright © 2026 HXtra 3000 contributors. GPL-3.0-or-later.
+appId: app.hx3k.desktop
+productName: HX3K
+copyright: Copyright © 2026 HX3K contributors. GPL-3.0-or-later.
 
 directories:
   output: release

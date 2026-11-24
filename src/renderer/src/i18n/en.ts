@@ -24,7 +24,7 @@ export const en = {
   'common.verified': 'Verified creator',
 
   // First run: the publishable key
-  'setup.title': 'Connect HXtra 3000 to TONE3000',
+  'setup.title': 'Connect HX3K to TONE3000',
   'setup.lead': 'TONE3000 gives each app its own key. Create yours once, and paste it here.',
   'setup.step1': 'Sign in at tone3000.com and open Settings → API Keys.',
   'setup.step2': 'Create a key. No redirect URI needs registering for this app.',
@@ -39,7 +39,7 @@ export const en = {
   // Before sign-in
   'splash.title': 'Connect to TONE3000',
   'splash.copy':
-    'HXtra 3000 connects to TONE3000 to give you access to a massive library of Neural Amp Modeler (NAM) captures of real analog gear, created by a global community of musicians.',
+    'HX3K connects to TONE3000 to give you access to a massive library of Neural Amp Modeler (NAM) captures of real analog gear, created by a global community of musicians.',
   'splash.how': 'Pick a tone there, and it comes back as the .wav your HX Stomp loads with HXtra.',
   'splash.continue': 'Continue',
   'splash.fine': 'An independent project. Not affiliated with TONE3000, Line 6 or Yamaha Guitar Group.',
@@ -180,7 +180,7 @@ export const en = {
   'settings.about': 'About',
   'settings.version': 'Version {v}',
   'settings.about.text':
-    'HXtra 3000 downloads the NAM captures you pick on TONE3000 and converts them with HXtra’s own converter, so the files are the ones HXtra’s setup page would give.',
+    'HX3K downloads the NAM captures you pick on TONE3000 and converts them with HXtra’s own converter, so the files are the ones HXtra’s setup page would give.',
   'settings.about.license': 'Free software under the GNU General Public License, version 3 or later.',
   'settings.about.creators': 'Each capture belongs to its creator and keeps the license shown on its tone. A credits file is written beside the .wav files.',
   'settings.about.marks':

@@ -25,7 +25,7 @@ export const ptBR: Record<Key, string> = {
   'common.openFolder': 'Abrir pasta',
   'common.verified': 'Criador verificado',
 
-  'setup.title': 'Conecte o HXtra 3000 ao TONE3000',
+  'setup.title': 'Conecte o HX3K ao TONE3000',
   'setup.lead': 'O TONE3000 dá a cada app a sua própria chave. Crie a sua uma vez e cole aqui.',
   'setup.step1': 'Entre em tone3000.com e abra Settings → API Keys.',
   'setup.step2': 'Crie uma chave. Este app não precisa de nenhuma redirect URI registrada.',
@@ -39,7 +39,7 @@ export const ptBR: Record<Key, string> = {
 
   'splash.title': 'Conecte-se ao TONE3000',
   'splash.copy':
-    'O HXtra 3000 se conecta ao TONE3000 para dar a você acesso a uma biblioteca enorme de capturas Neural Amp Modeler (NAM) de equipamentos analógicos reais, criadas por uma comunidade global de músicos.',
+    'O HX3K se conecta ao TONE3000 para dar a você acesso a uma biblioteca enorme de capturas Neural Amp Modeler (NAM) de equipamentos analógicos reais, criadas por uma comunidade global de músicos.',
   'splash.how': 'Escolha um tone lá, e ele volta como o .wav que o seu HX Stomp carrega com o HXtra.',
   'splash.continue': 'Continuar',
   'splash.fine': 'Projeto independente. Sem vínculo com o TONE3000, a Line 6 ou o Yamaha Guitar Group.',
@@ -174,7 +174,7 @@ export const ptBR: Record<Key, string> = {
   'settings.about': 'Sobre',
   'settings.version': 'Versão {v}',
   'settings.about.text':
-    'O HXtra 3000 baixa as capturas NAM que você escolhe no TONE3000 e converte com o conversor do próprio HXtra; os arquivos são os mesmos que a página de instalação do HXtra geraria.',
+    'O HX3K baixa as capturas NAM que você escolhe no TONE3000 e converte com o conversor do próprio HXtra; os arquivos são os mesmos que a página de instalação do HXtra geraria.',
   'settings.about.license': 'Software livre sob a GNU General Public License, versão 3 ou posterior.',
   'settings.about.creators':
     'Cada captura pertence a quem a criou e mantém a licença mostrada no tone. Um arquivo de créditos é gravado junto dos .wav.',

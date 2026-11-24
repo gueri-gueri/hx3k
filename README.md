@@ -1,4 +1,4 @@
-# HXtra 3000
+# HX3K
 
 A desktop app (Electron) that downloads NAM captures from **TONE3000** and converts them into the `.wav` that the
 **NAM A2 Lite** block of [HXtra](https://github.com/wisemandenny/hxtra) loads from the HX Stomp's User IR slots.
@@ -65,7 +65,7 @@ Never use the secret key (`t3k_cs_…`) in this project.
 ### No key: sample mode
 
 ```bash
-HX3000_MOCK=1 npm run dev
+HX3K_MOCK=1 npm run dev
 ```
 
 It swaps TONE3000 for made-up tones and a sample catalog in the same embedded area, so you can work on the interface

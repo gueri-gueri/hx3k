@@ -135,7 +135,7 @@ export interface AppState {
   hasClientId: boolean
   connected: boolean
   user: User | null
-  /** Development only: TONE3000 is faked with sample data (HX3000_MOCK=1). */
+  /** Development only: TONE3000 is faked with sample data (HX3K_MOCK=1). */
   mock: boolean
 }
 

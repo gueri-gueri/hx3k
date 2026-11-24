@@ -28,10 +28,10 @@ export function T3KMark({ className, decorative }: { className?: string; decorat
 
 /** The horizontal logo: the top of the menu and the splash. */
 export function Hx3kLogo({ className }: { className?: string }): ReactNode {
-  return <img className={className ? `hx3k-logo ${className}` : 'hx3k-logo'} src={hx3kLogoUrl} alt="HXtra 3000" draggable={false} />
+  return <img className={className ? `hx3k-logo ${className}` : 'hx3k-logo'} src={hx3kLogoUrl} alt="HX3K" draggable={false} />
 }
 
 /** The square mark: where the menu is only a rail. */
 export function Hx3kMark({ className }: { className?: string }): ReactNode {
-  return <img className={className ? `hx3k-mark ${className}` : 'hx3k-mark'} src={hx3kMarkUrl} alt="HXtra 3000" draggable={false} />
+  return <img className={className ? `hx3k-mark ${className}` : 'hx3k-mark'} src={hx3kMarkUrl} alt="HX3K" draggable={false} />
 }

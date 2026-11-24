@@ -257,7 +257,7 @@ export function App(): ReactNode {
   return (
     <Ctx.Provider value={ctx}>
       <div className="shell">
-        <nav className="sidebar" aria-label="HXtra 3000">
+        <nav className="sidebar" aria-label="HX3K">
           <div className="wordmark">
             <Hx3kLogo />
             <div className="wordmark-tag">{t('app.tagline')}</div>

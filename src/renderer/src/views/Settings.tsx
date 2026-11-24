@@ -187,7 +187,7 @@ export function SettingsView(): ReactNode {
       <section className="section">
         <h2>{t('settings.about')}</h2>
         <div className="card about">
-          <strong className="about-title">HXtra 3000 · {t('settings.version', { v: state.version })}</strong>
+          <strong className="about-title">HX3K · {t('settings.version', { v: state.version })}</strong>
           <p>{t('settings.about.text')}</p>
           <p>{t('settings.about.creators')}</p>
           <p>

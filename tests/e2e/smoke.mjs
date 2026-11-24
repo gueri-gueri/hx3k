@@ -1,10 +1,10 @@
 // End-to-end smoke test: drives the built app with sample data in place of
-// TONE3000 (HX3000_MOCK=1), from the splash to .wav files on disk.
+// TONE3000 (HX3K_MOCK=1), from the splash to .wav files on disk.
 //
 //   npm run build && npm run test:e2e
 //
 // Everything it writes goes to a temporary folder: its own user-data directory
-// and its own output folder, never the real ones. HX3000_SHOTS=<dir> keeps
+// and its own output folder, never the real ones. HX3K_SHOTS=<dir> keeps
 // screenshots of each screen.
 
 import assert from 'node:assert/strict'
@@ -15,10 +15,10 @@ import { fileURLToPath } from 'node:url'
 import { _electron as electron } from 'playwright-core'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..')
-const work = mkdtempSync(join(tmpdir(), 'hxtra3000-e2e-'))
+const work = mkdtempSync(join(tmpdir(), 'hx3k-e2e-'))
 const userData = join(work, 'user-data')
 const outputDir = join(work, 'out')
-const shots = process.env.HX3000_SHOTS
+const shots = process.env.HX3K_SHOTS
 mkdirSync(userData, { recursive: true })
 if (shots) mkdirSync(shots, { recursive: true })
 
@@ -58,7 +58,7 @@ const WAV_BYTES = 44 + 2048 * 4
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 // The built app, not a dev server that may be running beside it.
-const env = { ...process.env, HX3000_MOCK: '1' }
+const env = { ...process.env, HX3K_MOCK: '1' }
 delete env.ELECTRON_RENDERER_URL
 
 const app = await electron.launch({ cwd: root, args: ['.', `--user-data-dir=${userData}`], env })
@@ -146,7 +146,7 @@ try {
   const stage = await page.locator('main.stage').boundingBox()
   const laid = (await catalog()).bounds
   assert.deepEqual([laid.x, laid.y, laid.width, laid.height], [stage.x, stage.y, stage.width, stage.height].map(Math.round))
-  assert.equal(await page.title(), 'TONE3000 · HXtra 3000')
+  assert.equal(await page.title(), 'TONE3000 · HX3K')
   await page.waitForTimeout(250) // let the menu's highlight settle for the picture
   await shot('tone3000')
 
@@ -166,7 +166,7 @@ try {
   await catalogClosed()
   await page.getByText('@sample_player').waitFor()
   assert.equal((await selected.innerText()).trim(), 'Tones')
-  assert.equal(await page.title(), 'Plexi Lead 100 · HXtra 3000')
+  assert.equal(await page.title(), 'Plexi Lead 100 · HX3K')
   assert.equal(await focused(), 'main.content')
   await shot('tone')
 
@@ -244,7 +244,7 @@ try {
   await page.getByText('You have not published a tone').waitFor()
   await page.getByRole('tab', { name: 'Trending' }).click()
   await page.getByText('Recto Modern High Gain').waitFor()
-  assert.equal(await page.title(), 'Discover · HXtra 3000')
+  assert.equal(await page.title(), 'Discover · HX3K')
   await shot('trending')
 
   // Going to TONE3000 from the menu selects it; leaving closes the visit for good.

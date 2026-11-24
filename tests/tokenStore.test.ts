@@ -5,7 +5,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // The saved TONE3000 session, with a stand-in for the OS keystore.
 
-const work = mkdtempSync(join(tmpdir(), 'hxtra3000-tokens-'))
+const work = mkdtempSync(join(tmpdir(), 'hx3k-tokens-'))
 const file = join(work, 'tone3000-session.bin')
 
 const keystore = vi.hoisted(() => ({ available: true, reEncrypt: false, calls: [] as string[] }))
