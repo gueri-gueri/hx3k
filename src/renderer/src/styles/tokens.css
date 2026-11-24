@@ -1,0 +1,56 @@
+/*
+ * TONE3000's design tokens (--t3k-*), with the values its own site ships for
+ * the dark and the light theme. The app's styles use these names and nothing
+ * else for color, type and radius, so it stays in step with TONE3000's look.
+ */
+
+:root {
+  --t3k-font: 'Figtree Variable', Figtree, -apple-system, system-ui, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --t3k-font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --t3k-radius: 12px;
+  --t3k-radius-sm: 8px;
+  --t3k-toggle-on: #00d13b;
+  --t3k-toggle-off: #71717a;
+  --t3k-toggle-knob: #fff;
+}
+
+:root,
+:root[data-theme='dark'] {
+  --t3k-canvas: #000;
+  --t3k-surface: #18181b;
+  --t3k-surface-2: #27272a;
+  --t3k-line: #3f3f46;
+  --t3k-line-strong: #71717a;
+  --t3k-fg: #fff;
+  --t3k-muted: #a1a1aa;
+  --t3k-muted-2: #d4d4d8;
+  --t3k-accent: #fff;
+  --t3k-on-accent: #000;
+  --t3k-primary: linear-gradient(180deg, #00f, #0000d0);
+  --t3k-on-primary: #fff;
+  --t3k-link: #6b9bff;
+  --t3k-success: #00d13b;
+  --t3k-danger: #ff3b3b;
+  --t3k-warning: #f0b429;
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --t3k-canvas: #fff;
+  --t3k-surface: #fff;
+  --t3k-surface-2: #efefef;
+  --t3k-line: #e3e3e3;
+  --t3k-line-strong: #c9c9c9;
+  --t3k-fg: #1a1a1a;
+  --t3k-muted: #666;
+  --t3k-muted-2: #444;
+  --t3k-accent: #1a1a1a;
+  --t3k-on-accent: #fff;
+  --t3k-primary: linear-gradient(180deg, #00f, #0000d0);
+  --t3k-on-primary: #fff;
+  --t3k-link: #1d5fd1;
+  --t3k-success: #0a7d3b;
+  --t3k-danger: #c8102e;
+  --t3k-warning: #b97f00;
+  color-scheme: light;
+}

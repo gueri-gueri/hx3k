@@ -1,0 +1,37 @@
+appId: app.hxtra3000.desktop
+productName: HXtra 3000
+copyright: Copyright © 2026 HXtra 3000 contributors. GPL-3.0-or-later.
+
+directories:
+  output: release
+  buildResources: build
+
+# Everything the app runs is bundled into out/ by electron-vite.
+files:
+  - out/**/*
+  - package.json
+
+# The licenses travel with the app, as the GPL asks.
+extraResources:
+  - LICENSE
+  - NOTICE
+
+mac:
+  category: public.app-category.music
+  target:
+    - dmg
+    - zip
+
+win:
+  target:
+    - nsis
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+
+linux:
+  category: Audio
+  target:
+    - AppImage
+    - deb

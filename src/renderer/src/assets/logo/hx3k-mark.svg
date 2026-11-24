@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="824" height="824" viewBox="100 100 824 824" role="img" aria-label="HX3K">
+  <!-- HXtra 3000's own logo: "HX" on the dark tile, "3K" on the primary blue, in the
+       TONE3000 design tokens (zinc tile, #3f3f46 line, #00f to #0000d0, white on both).
+       The letters are drawn for it. Not TONE3000's logo. -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#27272a"/>
+      <stop offset="1" stop-color="#000000"/>
+    </linearGradient>
+    <linearGradient id="blue" gradientUnits="userSpaceOnUse" x1="0" y1="468" x2="0" y2="924">
+      <stop offset="0" stop-color="#0000ff"/>
+      <stop offset="1" stop-color="#0000d0"/>
+    </linearGradient>
+    <clipPath id="shape">
+      <rect x="100" y="100" width="824" height="824" rx="186"/>
+    </clipPath>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#tile)"/>
+  <path d="M100 556L924 468V924H100z" fill="url(#blue)" clip-path="url(#shape)"/>
+  <path d="M101.5 556V286A184.5 184.5 0 0 1 286 101.5H738A184.5 184.5 0 0 1 922.5 286V468" fill="none" stroke="#3f3f46" stroke-width="3"/>
+  <g fill="#ffffff">
+    <g transform="translate(259.04 184) scale(2.72)">
+      <path d="M0 0h24v38h34v-38h24v100h-24v-38h-34v38h-24z"/>
+      <path transform="translate(92 0)" d="M0 0h28.67L94 100h-28.67zM65.33 0h28.67L28.67 100h-28.67z"/>
+    </g>
+    <g transform="translate(259.04 568) scale(2.72)">
+      <path d="M5 0H39A30.5 30.5 0 0 1 63.95 48.04A31.5 31.5 0 0 1 40 100H2v-24H40a7.5 7.5 0 0 0 0 -15H22v-24H39a6.5 6.5 0 0 0 0 -13H5z"/>
+      <path transform="translate(91 0)" d="M0 0h24v100h-24zM57.78 0H91L24 70V35.29zM45.08 37.71L51.08 41.71L95 100h-30.05L34.26 59.28z"/>
+    </g>
+  </g>
+</svg>

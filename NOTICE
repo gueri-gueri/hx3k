@@ -1,0 +1,74 @@
+HXtra 3000
+Copyright (C) 2026 HXtra 3000 contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. It is distributed WITHOUT ANY WARRANTY; see LICENSE.
+
+What is not here
+----------------
+No NAM captures are included. The app downloads a capture from TONE3000 only
+when its user picks it, with that user's own TONE3000 account. Each capture
+belongs to its creator and stays under the license its creator chose; the app
+shows that license and writes a credits file beside the converted files.
+
+No Line 6 firmware, code or data is included.
+
+Third-party material
+--------------------
+HXtra (https://github.com/wisemandenny/hxtra), GPL-3.0-or-later,
+Copyright (C) 2026 Derek Bui and the HXtra contributors.
+  vendor/hxtra/nam2ir-core.js is HXtra's web/nam2ir-core.js, unmodified
+  (commit 01708b45004cc2a232e32e8e9020a3237fdad06d). It does the conversion.
+  The steps of "Load on the HX Stomp" and the wording of the conversion notes
+  follow HXtra's setup page (web/index.html).
+  HXtra itself builds on hx-stomp-nam-lite by Derek Bui
+  (https://github.com/nocaseguy/hx-stomp-nam-lite).
+
+TONE3000 API integration examples (https://github.com/tone-3000/t3k-api),
+MIT License, Copyright (c) 2026 TONE3000.
+  src/main/oauth.ts and the app:// serving in src/main/index.ts are adapted
+  from its Electron example (electron/src/main/). The license:
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+TONE3000 logos (src/renderer/src/assets/brand/): the official "TONE3000 Logos"
+assets from https://www.tone3000.com/api, unmodified. They are TONE3000's
+trademarks, shown as its API Terms ask ("Powered by TONE3000") and are NOT
+covered by this program's license. The color and type tokens in
+src/renderer/src/styles/tokens.css take their names and values from TONE3000's
+own stylesheet, so the app keeps to TONE3000's look as its design requirements ask.
+
+Figtree (https://github.com/erikdkennedy/figtree) and JetBrains Mono
+(https://github.com/JetBrains/JetBrainsMono): SIL Open Font License 1.1,
+bundled through the @fontsource-variable packages.
+
+Electron, React and the other packages in package.json: see each package's own
+license in node_modules.
+
+Neural Amp Modeler (https://github.com/sdatkinson/neural-amp-modeler), by
+Steven Atkinson, MIT License: the capture format. No NAM source is included.
+
+Trademarks
+----------
+TONE3000 is a trademark of its owner. Line 6, Helix, HX Stomp, HX Effects and
+HX Edit are trademarks of Yamaha Guitar Group, Inc. HXtra 3000 is an independent
+project: it is not affiliated with, endorsed by or supported by TONE3000, HXtra,
+Line 6 or Yamaha Guitar Group.

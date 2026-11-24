@@ -1,0 +1,10 @@
+node_modules/
+out/
+release/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
+test-results/
+.impeccable/hook.cache.json

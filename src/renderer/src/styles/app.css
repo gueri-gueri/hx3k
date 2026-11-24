@@ -1,0 +1,1639 @@
+/* ─── Base ─────────────────────────────────────────────────────────────────── */
+
+/* Derived from TONE3000's tokens, so they follow the theme with them. */
+:root {
+  /* The edge of a field: 3:1 against the surface it sits on, in both themes. */
+  --hx-edge: color-mix(in srgb, var(--t3k-muted) 75%, var(--t3k-surface));
+  /* A hover wash that shows on any surface, light or dark. */
+  --hx-hover: color-mix(in srgb, var(--t3k-fg) 9%, transparent);
+  scrollbar-color: var(--t3k-line-strong) transparent;
+  accent-color: var(--t3k-fg);
+  caret-color: var(--t3k-fg);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--t3k-font);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--t3k-fg);
+  background: var(--t3k-canvas);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  user-select: none;
+  cursor: default;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--t3k-muted);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+:focus-visible {
+  outline: 2px solid var(--t3k-link);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--t3k-link);
+  color: var(--t3k-canvas);
+}
+
+/* A screen that takes the keyboard on arrival is not a control: no ring around it. */
+.content:focus {
+  outline: none;
+}
+
+.selectable {
+  user-select: text;
+  cursor: text;
+}
+
+.mono {
+  font-family: var(--t3k-font-mono);
+  font-size: 12px;
+  /* Paths and file names have no spaces to break at. */
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.muted {
+  color: var(--t3k-muted);
+}
+
+.small {
+  font-size: 13px;
+}
+
+.stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.link-start {
+  align-self: flex-start;
+  text-align: left;
+}
+
+.link {
+  color: var(--t3k-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.15s;
+}
+
+.link:hover {
+  text-decoration-color: currentColor;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ─── Shell ────────────────────────────────────────────────────────────────── */
+
+.shell {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  height: 100%;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 12px 16px;
+  border-right: 1px solid var(--t3k-line);
+  background: var(--t3k-canvas);
+  min-height: 0;
+  /* A short window (or a zoomed one) scrolls the menu instead of cutting it. */
+  overflow-y: auto;
+}
+
+.wordmark {
+  padding: 0 10px 18px;
+}
+
+/* The app's own logo. It carries its own dark tile and line, so it is the same
+   picture on the dark and the light theme. */
+.hx3k-logo {
+  display: block;
+  height: 32px;
+  width: auto;
+}
+
+.hx3k-mark {
+  width: 36px;
+  height: 36px;
+  align-self: center;
+  margin-bottom: 8px;
+}
+
+.wordmark-tag {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--t3k-muted);
+  line-height: 1.35;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--t3k-radius-sm);
+  color: var(--t3k-muted-2);
+  font-weight: 500;
+  text-align: left;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+
+.nav-item:hover {
+  background: var(--hx-hover);
+  color: var(--t3k-fg);
+}
+
+/* Where the user is. The ring carries it (the fill alone is too faint to tell,
+   and the TONE3000 entry has no word to make bold). */
+.nav-item[aria-current='page'] {
+  background: var(--t3k-surface-2);
+  color: var(--t3k-fg);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px var(--t3k-fg);
+}
+
+.nav-item .t3k-logo {
+  height: 17px;
+  margin: 1px 0;
+}
+
+.nav-label {
+  min-width: 0;
+}
+
+/* The menu as a rail (narrow or zoomed windows) shows the other half of each pair. */
+.when-rail {
+  display: none;
+}
+
+.nav-count {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--t3k-surface-2);
+  color: var(--t3k-muted-2);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+
+.nav-item[aria-current='page'] .nav-count {
+  background: var(--t3k-line);
+}
+
+.sidebar-foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 10px 0;
+  border-top: 1px solid var(--t3k-line);
+}
+
+.keys-hint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--t3k-muted);
+}
+
+kbd {
+  display: inline-block;
+  padding: 0 5px;
+  border: 1px solid var(--t3k-line-strong);
+  border-radius: 4px;
+  font-family: var(--t3k-font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--t3k-fg);
+}
+
+.powered {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t3k-muted);
+  text-align: left;
+}
+
+/* The official logos, never recolored, stretched or cropped. */
+.t3k-logo {
+  height: 22px;
+  width: auto;
+}
+
+.t3k-mark {
+  height: 14px;
+  width: auto;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 12px 28px;
+  border-bottom: 1px solid var(--t3k-line);
+  min-height: 61px;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--t3k-muted-2);
+  font-weight: 500;
+}
+
+.who .muted {
+  font-weight: 400;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 28px 28px 48px;
+}
+
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-narrow {
+  max-width: 760px;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-head p {
+  margin-top: 6px;
+  color: var(--t3k-muted);
+  max-width: 62ch;
+}
+
+/* ─── Buttons ──────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--t3k-radius-sm);
+  border: 1px solid transparent;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background 0.12s,
+    border-color 0.12s,
+    filter 0.12s,
+    opacity 0.12s;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--t3k-primary);
+  color: var(--t3k-on-primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.18);
+}
+
+.btn-accent {
+  background: var(--t3k-accent);
+  color: var(--t3k-on-accent);
+}
+
+.btn-accent:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.btn-outline {
+  border-color: var(--t3k-line);
+  color: var(--t3k-fg);
+}
+
+.btn-outline:hover:not(:disabled) {
+  border-color: var(--t3k-line-strong);
+  background: var(--hx-hover);
+}
+
+.btn-quiet {
+  color: var(--t3k-muted-2);
+  padding: 0 10px;
+}
+
+.btn-quiet:hover:not(:disabled) {
+  color: var(--t3k-fg);
+  background: var(--hx-hover);
+}
+
+.btn-danger {
+  border-color: var(--t3k-danger);
+  color: var(--t3k-danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--t3k-danger) 12%, transparent);
+}
+
+.btn-sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.btn-lg {
+  height: 44px;
+  padding: 0 22px;
+  font-size: 15px;
+}
+
+/* Opens the TONE3000 catalog: the compact T3K mark, then the words. */
+.btn-browse {
+  border-color: var(--t3k-line);
+  background: var(--t3k-surface);
+  color: var(--t3k-fg);
+  gap: 10px;
+}
+
+.btn-browse:hover:not(:disabled) {
+  border-color: var(--t3k-line-strong);
+  background: var(--t3k-surface-2);
+}
+
+/* ─── Small parts ──────────────────────────────────────────────────────────── */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--t3k-surface-2);
+  color: var(--t3k-muted-2);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.chip-line {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--t3k-line);
+}
+
+.chip-ready {
+  color: color-mix(in srgb, var(--t3k-success) 82%, var(--t3k-fg));
+  background: color-mix(in srgb, var(--t3k-success) 14%, transparent);
+}
+
+.chip-off {
+  color: var(--t3k-muted);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.avatar {
+  flex: none;
+  border-radius: 50%;
+  background: var(--t3k-surface-2);
+  color: var(--t3k-muted-2);
+  display: inline-grid;
+  place-items: center;
+  font-weight: 700;
+  text-transform: uppercase;
+  overflow: hidden;
+  object-fit: cover;
+}
+
+.creator {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: var(--t3k-muted-2);
+  font-size: 13px;
+}
+
+.creator-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.verified {
+  color: var(--t3k-link);
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
+  animation: spin 0.7s linear infinite;
+  flex: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.skeleton {
+  background: var(--t3k-surface-2);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.sk-line {
+  height: 18px;
+  border-radius: 4px;
+}
+
+.sk-chip {
+  height: 22px;
+  border-radius: 999px;
+}
+
+.sk-title {
+  height: 30px;
+  border-radius: 6px;
+}
+
+.sk-block {
+  height: 70px;
+  border-radius: 6px;
+}
+
+.sk-w35 {
+  width: 35%;
+}
+
+.sk-w40 {
+  width: 40%;
+}
+
+.sk-w50 {
+  width: 50%;
+}
+
+.sk-w60 {
+  width: 60%;
+}
+
+.sk-w75 {
+  width: 75%;
+}
+
+.sk-w90 {
+  width: 90%;
+}
+
+.notice {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--t3k-radius-sm);
+  border: 1px solid var(--t3k-line);
+  background: var(--t3k-surface);
+  color: var(--t3k-muted-2);
+}
+
+.notice .icon {
+  margin-top: 2px;
+  color: var(--t3k-warning);
+}
+
+.notice-error {
+  border-color: color-mix(in srgb, var(--t3k-danger) 55%, transparent);
+}
+
+.notice-error .icon {
+  color: var(--t3k-danger);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 56px 24px;
+  border: 1px dashed var(--t3k-line);
+  border-radius: var(--t3k-radius);
+  text-align: center;
+}
+
+.empty-title {
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--t3k-fg);
+}
+
+.empty p {
+  color: var(--t3k-muted);
+  max-width: 48ch;
+}
+
+.empty .actions {
+  margin-top: 8px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.actions-end {
+  justify-content: flex-end;
+}
+
+.actions-loose {
+  gap: 16px;
+}
+
+/* ─── Tabs ─────────────────────────────────────────────────────────────────── */
+
+.tabbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--t3k-line);
+}
+
+.tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tabpanel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.tab {
+  position: relative;
+  padding: 9px 12px 11px;
+  color: var(--t3k-muted);
+  font-weight: 600;
+  border-radius: var(--t3k-radius-sm) var(--t3k-radius-sm) 0 0;
+  transition: color 0.12s;
+}
+
+.tab:hover {
+  color: var(--t3k-fg);
+}
+
+.tab[aria-selected='true'] {
+  color: var(--t3k-fg);
+}
+
+.tab[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--t3k-fg);
+}
+
+/* The first tab of a second group: a hairline and a little air before it. */
+.tab-group {
+  margin-left: 17px;
+}
+
+.tab-group::before {
+  content: '';
+  position: absolute;
+  left: -11px;
+  top: 50%;
+  width: 1px;
+  height: 18px;
+  margin-top: -10px;
+  background: var(--t3k-line);
+}
+
+.tabbar-end {
+  margin-left: auto;
+  padding-bottom: 4px;
+}
+
+/* ─── Tone cards ───────────────────────────────────────────────────────────── */
+
+.tone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: 16px;
+}
+
+.tone-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid var(--t3k-line);
+  border-radius: var(--t3k-radius);
+  background: var(--t3k-surface);
+  overflow: hidden;
+  transition:
+    border-color 0.12s,
+    transform 0.12s;
+}
+
+.tone-card:hover {
+  border-color: var(--t3k-line-strong);
+}
+
+.tone-card:active {
+  transform: scale(0.99);
+}
+
+.tone-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: var(--t3k-surface-2);
+}
+
+.tone-image-empty {
+  display: grid;
+  place-items: center;
+  color: var(--t3k-line-strong);
+}
+
+.tone-image-empty .icon {
+  width: 34px;
+  height: 34px;
+}
+
+.tone-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px 14px;
+  flex: 1;
+}
+
+.tone-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--t3k-fg);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tone-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+/* The title's button is the card's control; the card shows its focus. */
+.card-link {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.card-link:focus-visible {
+  outline: none;
+}
+
+.tone-card:has(.card-link:focus-visible) {
+  outline: 2px solid var(--t3k-link);
+  outline-offset: 2px;
+}
+
+/* A tone the HX Stomp cannot play steps back: the picture fades, the title
+   goes to the secondary text color (still readable, unlike faded text). */
+.tone-card-dim .tone-image {
+  opacity: 0.5;
+}
+
+.tone-card-dim .tone-title {
+  color: var(--t3k-muted);
+}
+
+.more-card {
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 20px;
+  border-style: dashed;
+  background: none;
+  min-height: 220px;
+}
+
+.more-card .tone-title {
+  font-size: 16px;
+}
+
+.more-card p {
+  color: var(--t3k-muted);
+  font-size: 13px;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--t3k-muted);
+}
+
+/* ─── Tone details ─────────────────────────────────────────────────────────── */
+
+.detail {
+  display: grid;
+  grid-template-columns: minmax(220px, 340px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.detail-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--t3k-radius);
+  border: 1px solid var(--t3k-line);
+  background: var(--t3k-surface-2);
+}
+
+.detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.detail-info h1 {
+  overflow-wrap: anywhere;
+}
+
+.description {
+  color: var(--t3k-muted-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 70ch;
+}
+
+.description-clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  color: var(--t3k-muted);
+  font-size: 13px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-tight {
+  gap: 6px;
+}
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.section-head p {
+  margin-top: 4px;
+  color: var(--t3k-muted);
+}
+
+.rows {
+  border: 1px solid var(--t3k-line);
+  border-radius: var(--t3k-radius);
+  background: var(--t3k-surface);
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 12px 14px;
+}
+
+.row + .row {
+  border-top: 1px solid var(--t3k-line);
+}
+
+.row-main {
+  flex: 1 1 260px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.row-sub {
+  color: var(--t3k-muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* A row's title that opens something: it keeps the title's look and gains an underline on hover. */
+.row-link {
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.15s;
+}
+
+.row-link:hover {
+  text-decoration-color: currentColor;
+}
+
+.row-ok {
+  color: color-mix(in srgb, var(--t3k-success) 82%, var(--t3k-fg));
+}
+
+.row-warn {
+  color: color-mix(in srgb, var(--t3k-warning) 82%, var(--t3k-fg));
+}
+
+.row-bad {
+  color: var(--t3k-danger);
+}
+
+.row-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.row-status .icon {
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+}
+
+/* ─── Converted captures ───────────────────────────────────────────────────── */
+
+.thumb {
+  position: relative;
+  width: 72px;
+  height: 54px;
+  flex: none;
+}
+
+.thumb img.thumb-image,
+.thumb .thumb-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--t3k-radius-sm);
+  background: var(--t3k-surface-2);
+}
+
+.thumb .thumb-image.tone-image-empty .icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* Marks a capture that came from TONE3000. */
+.thumb-mark {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: rgb(0 0 0 / 0.72);
+}
+
+.thumb-mark .t3k-mark {
+  height: 9px;
+}
+
+/* ─── Local files ──────────────────────────────────────────────────────────── */
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 44px 24px;
+  border: 1.5px dashed var(--t3k-line-strong);
+  border-radius: var(--t3k-radius);
+  background: var(--t3k-surface);
+  text-align: center;
+  transition:
+    border-color 0.12s,
+    background 0.12s;
+}
+
+.dropzone:hover,
+.dropzone[data-over='true'] {
+  border-color: var(--t3k-fg);
+  background: var(--t3k-surface-2);
+}
+
+.dropzone strong {
+  font-size: 16px;
+}
+
+.dropzone .icon {
+  width: 26px;
+  height: 26px;
+  color: var(--t3k-muted);
+  margin-bottom: 4px;
+}
+
+/* ─── Splash and setup ─────────────────────────────────────────────────────── */
+
+.center {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.splash {
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 40px 36px 32px;
+  border: 1px solid var(--t3k-line);
+  border-radius: var(--t3k-radius);
+  background: var(--t3k-surface);
+  text-align: center;
+}
+
+.partners {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.partners .hx3k-logo {
+  height: 44px;
+}
+
+.partners .times {
+  color: var(--t3k-muted);
+  font-size: 18px;
+}
+
+.partners .t3k-logo {
+  height: 30px;
+}
+
+.splash-copy {
+  font-size: 15px;
+  color: var(--t3k-muted-2);
+}
+
+.splash-fine {
+  font-size: 12px;
+  color: var(--t3k-muted);
+}
+
+.setup {
+  width: min(600px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 32px;
+  border: 1px solid var(--t3k-line);
+  border-radius: var(--t3k-radius);
+  background: var(--t3k-surface);
+}
+
+.setup .t3k-logo {
+  height: 26px;
+  align-self: flex-start;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  counter-reset: step;
+}
+
+.steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 10px;
+  color: var(--t3k-muted-2);
+}
+
+.steps li::before {
+  content: counter(step);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--t3k-surface-2);
+  color: var(--t3k-fg);
+  font-size: 12px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+.steps-lg li {
+  font-size: 15px;
+  color: var(--t3k-fg);
+}
+
+/* ─── Forms ────────────────────────────────────────────────────────────────── */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label,
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--t3k-muted-2);
+}
+
+.input,
+.select {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--t3k-radius-sm);
+  border: 1px solid var(--hx-edge);
+  background: var(--t3k-canvas);
+  color: var(--t3k-fg);
+  min-width: 0;
+  user-select: text;
+}
+
+/* The select draws its own arrow, so it sits at the same 12px inset as the text. */
+.select-wrap {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 12px;
+  height: 12px;
+  transform: translateY(-50%);
+  background: var(--t3k-fg);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  pointer-events: none;
+}
+
+.select {
+  appearance: none;
+  min-width: 0;
+  max-width: 100%;
+  padding-right: 34px;
+}
+
+.input:hover,
+.select:hover {
+  border-color: var(--t3k-fg);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--t3k-danger);
+}
+
+.input:focus-visible,
+.select:focus-visible {
+  outline: none;
+  border-color: var(--t3k-fg);
+  box-shadow: 0 0 0 1px var(--t3k-fg);
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.input-row .input {
+  flex: 1;
+}
+
+.field-error {
+  color: var(--t3k-danger);
+  font-size: 13px;
+}
+
+.card {
+  border: 1px solid var(--t3k-line);
+  border-radius: var(--t3k-radius);
+  background: var(--t3k-surface);
+}
+
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  padding: 14px 16px;
+}
+
+.setting-top {
+  align-items: flex-start;
+}
+
+.setting + .setting {
+  border-top: 1px solid var(--t3k-line);
+}
+
+.setting-text {
+  flex: 1 1 240px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.setting-text-row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.setting-form {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-text .path {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.setting-text .account {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--t3k-fg);
+  font-size: 14px;
+}
+
+.setting-text .note {
+  color: var(--t3k-muted-2);
+  font-size: 14px;
+}
+
+.step-actions {
+  margin-top: 8px;
+}
+
+.setting-text strong {
+  font-weight: 600;
+}
+
+.setting-text span {
+  color: var(--t3k-muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.toggle {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--t3k-toggle-off);
+  flex: none;
+  transition: background 0.15s;
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--t3k-toggle-knob);
+  transition: transform 0.15s;
+}
+
+/* --t3k-success is TONE3000's toggle green in the dark theme, and in the light
+   one a green dark enough to stand on white (the toggle token alone is 2:1 there). */
+.toggle[aria-checked='true'] {
+  background: var(--t3k-success);
+}
+
+.toggle[aria-checked='true']::after {
+  transform: translateX(18px);
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--t3k-radius-sm);
+  background: var(--t3k-surface-2);
+  flex: none;
+}
+
+.segmented button {
+  padding: 4px 12px;
+  border-radius: 6px;
+  color: var(--t3k-muted-2);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--t3k-accent);
+  color: var(--t3k-on-accent);
+}
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  color: var(--t3k-muted-2);
+}
+
+.about small {
+  color: var(--t3k-muted);
+  font-size: 12px;
+}
+
+.about-title {
+  color: var(--t3k-fg);
+}
+
+/* ─── The TONE3000 screen ──────────────────────────────────────────────────── */
+
+/* The native TONE3000 view is laid over this box, edge to edge beside the menu. */
+.stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  background: var(--t3k-canvas);
+  color: var(--t3k-muted);
+}
+
+.stage-wait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.stage-wait strong {
+  color: var(--t3k-fg);
+}
+
+/* ─── Toasts ───────────────────────────────────────────────────────────────── */
+
+.toasts {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(380px, calc(100% - 40px));
+  pointer-events: none;
+}
+
+.toast-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast-stack:empty {
+  display: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: var(--t3k-radius-sm);
+  border: 1px solid var(--t3k-line-strong);
+  background: var(--t3k-surface-2);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.35);
+  pointer-events: auto;
+  animation: rise 0.18s ease-out;
+  overflow-wrap: anywhere;
+}
+
+.toast .icon {
+  margin-top: 2px;
+}
+
+.toast-ok .icon {
+  color: color-mix(in srgb, var(--t3k-success) 82%, var(--t3k-fg));
+}
+
+.toast-error .icon {
+  color: var(--t3k-danger);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.banner {
+  padding: 6px 28px;
+  background: color-mix(in srgb, var(--t3k-warning) 22%, transparent);
+  color: var(--t3k-fg);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (max-width: 1040px) {
+  .detail {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-image {
+    max-width: 420px;
+  }
+}
+
+/* A narrow window, or the default one zoomed to 200%: the menu becomes a rail
+   of icons, so the screen keeps the width. */
+@media (max-width: 720px) {
+  .shell {
+    grid-template-columns: 60px minmax(0, 1fr);
+  }
+
+  .sidebar {
+    padding: 12px 8px;
+  }
+
+  .wordmark,
+  .nav-label,
+  .nav-count,
+  .powered-label,
+  .keys-hint span,
+  .when-wide {
+    display: none;
+  }
+
+  .when-rail {
+    display: block;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: 10px 0;
+  }
+
+  .nav-item .t3k-mark {
+    height: 12px;
+  }
+
+  .sidebar-foot {
+    align-items: center;
+    padding: 10px 0 0;
+  }
+
+  .keys-hint {
+    text-align: center;
+  }
+
+  .topbar {
+    padding: 10px 16px;
+    min-height: 0;
+  }
+
+  .content {
+    padding: 20px 16px 40px;
+  }
+
+  .banner {
+    padding: 6px 16px;
+  }
+}
+
+/* Less movement, not less feedback: nothing slides, scales or pulses, while
+   color and opacity changes stay, since they are how a state change is seen. */
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation-name: appear;
+  }
+
+  .tone-card:active {
+    transform: none;
+  }
+
+  .toggle::after {
+    transition: none;
+  }
+
+  .skeleton {
+    animation: none;
+    opacity: 0.7;
+  }
+
+  /* Still turning, since it is the only sign that work is going on, but slowly. */
+  .spinner {
+    animation-duration: 1.6s;
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+}
