@@ -99,13 +99,18 @@ jobs:
     permissions:
       contents: write
     steps:
+      # For .github/release-notes.md. It comes first: checkout empties the folder.
+      - uses: actions/checkout@v7
+
       - uses: actions/download-artifact@v8
         with:
           path: artifacts
           merge-multiple: true
 
       # A draft: it shows on the Releases page only after you publish it there.
-      # Re-running the job replaces the files of the draft it already made.
+      # Its text is the install instructions of .github/release-notes.md, then
+      # the list of changes GitHub writes. Re-running the job replaces the files
+      # of the draft it already made and leaves the text as it is.
       - name: Create the draft release, or refresh its files
         env:
           GH_TOKEN: ${{ github.token }}
@@ -114,8 +119,11 @@ jobs:
           if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" artifacts/* --clobber
           else
+            sed -e "s|{{version}}|${GITHUB_REF_NAME#v}|g" -e "s|{{repo}}|$GITHUB_REPOSITORY|g" \
+              .github/release-notes.md > "$RUNNER_TEMP/release-notes.md"
             gh release create "$GITHUB_REF_NAME" artifacts/* \
               --title "HX3K ${GITHUB_REF_NAME#v}" \
+              --notes-file "$RUNNER_TEMP/release-notes.md" \
               --generate-notes \
               --verify-tag \
               --draft

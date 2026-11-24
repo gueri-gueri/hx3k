@@ -94,6 +94,9 @@ git tag v0.1.0 && git push origin v0.1.0
 opens a **draft** release with the installers. Publish it from the repository's Releases page. Started by hand from
 the Actions tab, the workflow only packages: the installers stay in the run's artifacts.
 
+The release opens with the install instructions of [`release-notes.md`](.github/release-notes.md), where
+`{{version}}` and `{{repo}}` are filled in, followed by GitHub's list of changes.
+
 The installers are not signed with a certificate. macOS asks for *System Settings → Privacy & Security → Open Anyway*
 on first launch, and Windows shows SmartScreen's *More info → Run anyway*.
 
