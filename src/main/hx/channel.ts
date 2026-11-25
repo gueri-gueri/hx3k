@@ -5,7 +5,7 @@
 //   request  {0x66: seq, 0x64: command, 0x65: parameters}
 //   reply    {0x66: seq, 0x67: status, 0x68: result, or {0x6f: error} when refused}
 // Status 0 is done. Status 1 is "accepted, ends later": the end then comes as a
-// notification. Only commands that change the unit answer so, and none is sent here.
+// notification, so whoever sent the command checks its effect by reading it back.
 //
 // Follows Channel in HXtra's tools/hx_ctl.py.
 
@@ -27,6 +27,12 @@ const K_SEQ = 0x66
 const K_STATUS = 0x67
 const K_RESULT = 0x68
 const K_ERROR = 0x6f
+const STATUS_ACCEPTED = 1
+
+export interface Answer {
+  done: boolean
+  result: Value
+}
 
 /** A stream the unit still holds from a session that was not closed is ignored until then: about 4 s. */
 const CONNECT_TRIES = 4
@@ -91,9 +97,16 @@ export class Channel {
     return channel
   }
 
-  /** Sends a command and resolves with its result. */
-  request(command: number, params: Packable = null, ms = this.link.timing.timeoutMs): Promise<Value> {
-    const run = async (): Promise<Value> => {
+  /** Sends a command and resolves with its result. Refuses an answer that is not final. */
+  async request(command: number, params: Packable = null, ms = this.link.timing.timeoutMs): Promise<Value> {
+    const answer = await this.send(command, params, ms)
+    if (!answer.done) throw new HxError('refused', `The HX Stomp did not finish command 0x${command.toString(16).padStart(2, '0')} at once.`)
+    return answer.result
+  }
+
+  /** Sends a command. `done` is false when the unit accepted it and will finish it later. */
+  send(command: number, params: Packable = null, ms = this.link.timing.timeoutMs): Promise<Answer> {
+    const run = async (): Promise<Answer> => {
       this.seq = (this.seq + 1) & 0xffff
       const seq = this.seq
       // The unit finds the parameters by where their key is, so that key goes last.
@@ -105,17 +118,18 @@ export class Channel {
         ]),
       )
       await this.write(message(this.service, body))
-      const reply = unpack(await this.read(ms))
       const name = `0x${command.toString(16).padStart(2, '0')}`
-      if (!(reply instanceof Map)) throw new HxError('protocol', `The HX Stomp answered command ${name} with something that is not a reply.`)
-      if (reply.get(K_SEQ) !== seq) throw new HxError('protocol', `The HX Stomp answered another request than command ${name}.`)
-      const status = reply.get(K_STATUS)
-      const result = reply.get(K_RESULT) ?? null
-      if (status !== 0) {
+      for (;;) {
+        const reply = unpack(await this.read(ms))
+        if (!(reply instanceof Map)) throw new HxError('protocol', `The HX Stomp answered command ${name} with something that is not a reply.`)
+        // An answer that came too late for an earlier request, or the end of one that was accepted.
+        if (reply.get(K_SEQ) !== seq) continue
+        const status = reply.get(K_STATUS)
+        const result = reply.get(K_RESULT) ?? null
+        if (status === 0 || status === STATUS_ACCEPTED) return { done: status === 0, result }
         const error = result instanceof Map ? result.get(K_ERROR) : undefined
         throw new HxError('refused', `The HX Stomp refused command ${name} (status ${String(status)}, error ${String(error)}).`)
       }
-      return result
     }
     const result = this.turn.then(run, run)
     this.turn = result.catch(() => undefined)

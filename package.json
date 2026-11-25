@@ -16,7 +16,8 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "test": "vitest run",
     "test:e2e": "node tests/e2e/smoke.mjs",
-    "hx:probe": "HX3K_STOMP=1 vitest run tests/hx.hardware.test.ts --silent=false",
+    "hx:probe": "HX3K_STOMP=1 HX3K_WAV= vitest run tests/hx.hardware.test.ts --silent=false",
+    "hx:import": "HX3K_STOMP=1 vitest run tests/hx.hardware.test.ts -t import --silent=false",
     "icon": "electron scripts/make-icon.cjs",
     "dist": "npm run build && electron-builder",
     "dist:dir": "npm run build && electron-builder --dir"

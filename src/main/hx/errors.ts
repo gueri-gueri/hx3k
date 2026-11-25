@@ -11,6 +11,8 @@ export type HxErrorCode =
   | 'protocol'
   /** The unit answered a command with an error. */
   | 'refused'
+  /** What was to be sent is not something the unit can take. */
+  | 'invalid'
 
 export class HxError extends Error {
   constructor(

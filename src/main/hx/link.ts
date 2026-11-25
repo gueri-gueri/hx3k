@@ -32,9 +32,11 @@ export interface Timing {
   timeoutMs: number
   /** How long after the last FIN the interface stays claimed, for the unit to take it. */
   lingerMs: number
+  /** How long between two looks at whether the unit has done what it accepted, and between two tries to lock its screen. */
+  checkMs: number
 }
 
-export const TIMING: Timing = { purgeMs: 500, heartbeatMs: 1000, timeoutMs: 3000, lingerMs: 200 }
+export const TIMING: Timing = { purgeMs: 500, heartbeatMs: 1000, timeoutMs: 3000, lingerMs: 200, checkMs: 250 }
 
 /** The host's receive buffer for a stream, as Line 6 Updater sizes it. */
 const RX_BUFFER = 0x1000

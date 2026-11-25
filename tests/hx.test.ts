@@ -1,11 +1,16 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Channel } from '../src/main/hx/channel'
+import { convertNam } from '../src/main/convert'
 import { HxError } from '../src/main/hx/errors'
+import { IMPULSE_BYTES, impulseChecksum, impulseHash, impulseName, storeParams, wavSamples } from '../src/main/hx/impulse'
 import { Link, type Timing, type UsbPort, sleep } from '../src/main/hx/link'
 import { type Packable, type Value, pack, text, unpack } from '../src/main/hx/msgpack'
 import { presetBlocks } from '../src/main/hx/preset'
 import { Stomp } from '../src/main/hx/stomp'
+import { sampleNam } from '../src/main/sampleNam'
 import { F_DATA, F_FIN, F_HEARTBEAT, F_HEARTBEATS, F_SYN, F_WIN, type Packet, decodeTransfer, encodePacket } from '../src/main/hx/wire'
+
+vi.mock('electron', () => ({}))
 
 // The HX Stomp's USB protocol against a stand-in for the unit: what the host
 // puts on the wire, and that it keeps to the unit's rules (sequence numbers,
@@ -147,6 +152,13 @@ class FakeStomp implements UsbPort {
   readonly notifyNext: Packable[] = []
   /** How many SYNs to leave unanswered, as the unit does while it still holds an earlier stream. */
   ignoreSyns = 0
+  /** Before each reply, one more that answers the request before it: an answer that came late. */
+  lateReplies = false
+  /** The User IRs: what each slot holds. */
+  readonly slots = new Map<number, { name: string; data: Uint8Array }>()
+  /** What the librarian was asked to do to the IRs and the screen, in order. */
+  readonly did: string[] = []
+  locked = false
   fins = 0
   closed = false
   gone: (err: Error) => void = () => undefined
@@ -260,6 +272,14 @@ class FakeStomp implements UsbPort {
       }
       const answer = this.handlers.get(s.service)?.(command, params)
       if (answer === null) continue
+      if (this.lateReplies) {
+        const late = new Map<Packable, Packable>([
+          [0x66, ((request.get(0x66) as number) - 1) & 0xffff],
+          [0x67, 0],
+          [0x68, 'late'],
+        ])
+        s.outbox = concat(s.outbox, message(s.service, pack(late)))
+      }
       const reply = new Map<Packable, Packable>([
         [0x66, request.get(0x66) as number],
         [0x67, answer?.status ?? (answer ? 0 : 255)],
@@ -309,7 +329,7 @@ class FakeStomp implements UsbPort {
   }
 }
 
-const FAST: Partial<Timing> = { purgeMs: 0, timeoutMs: 300, lingerMs: 0 }
+const FAST: Partial<Timing> = { purgeMs: 0, timeoutMs: 300, lingerMs: 0, checkMs: 5 }
 const EDITOR = 6
 const LIBRARIAN = 2
 
@@ -358,14 +378,75 @@ function unit(): FakeStomp {
     if (command === 0x16) return { result: concat(presetBlob(), new Uint8Array(0)) }
     return undefined as unknown as Answer
   })
-  fake.handlers.set(LIBRARIAN, (command, params) => {
-    if (command !== 0x01 || !(params instanceof Map)) return undefined as unknown as Answer
-    const setlist = params.get(0x6b) as number
-    const list: Packable[] = Array.from({ length: 126 }, (_, i) => new Map<Packable, Packable>([[125 - i, new Map<Packable, Packable>([[0x6d, name16(`S${setlist} P${125 - i}`)]])]]))
-    return { result: list }
-  })
+  fake.handlers.set(LIBRARIAN, (command, params) => librarian(fake, command, params))
   return fake
 }
+
+const REFUSED = undefined as unknown as Answer
+const cstring = (text: string): Uint8Array => Uint8Array.from({ length: text.length + 1 }, (_, i) => text.charCodeAt(i) || 0)
+const keysOf = (params: Value): string => (params instanceof Map ? [...params.keys()].map((k) => (k as number).toString(16)).join(',') : 'none')
+
+/** The librarian as the unit answers it: presets, and the User IRs with the screen lock around a write. */
+function librarian(fake: FakeStomp, command: number, params: Value): Answer {
+  if (!(params instanceof Map)) return REFUSED
+  const marketplace: [Packable, Packable][] = [
+    [0x7b, false],
+    [0x7c, false],
+    [0x7d, 0],
+  ]
+  const index = params.get(0x70) as number
+  const slot = fake.slots.get(index)
+  switch (command) {
+    case 0x01: {
+      const setlist = params.get(0x6b) as number
+      return { result: Array.from({ length: 126 }, (_, i) => new Map<Packable, Packable>([[125 - i, new Map<Packable, Packable>([[0x6d, name16(`S${setlist} P${125 - i}`)]])]])) }
+    }
+    case 0x0d:
+      if (keysOf(params) !== '65' || params.get(0x65) !== 2) return REFUSED
+      return {
+        result: [...fake.slots].reverse().map(
+          ([i, s]) =>
+            new Map<Packable, Packable>([[0x70, i], [0x6d, cstring(s.name)], ...marketplace, [0x68, impulseHash(s.data)]]),
+        ),
+      }
+    case 0x0c:
+      if (keysOf(params) !== '70' || !slot) return REFUSED
+      return { result: new Map<Packable, Packable>([[0x70, index], [0x71, impulseChecksum(slot.data)], [0x6d, cstring(slot.name)], [0x72, 1], [0x73, 3], ...marketplace]) }
+    case 0x0b:
+      if (keysOf(params) !== '70,65' || !slot) return REFUSED
+      return { result: slot.data }
+    case 0xff:
+    case 0xfe:
+      if (params.size) return REFUSED
+      fake.locked = command === 0xff
+      fake.did.push(command === 0xff ? 'lock' : 'unlock')
+      return { result: null }
+    case 0x09: {
+      fake.did.push('set')
+      const name = params.get(0x6d)
+      const data = params.get(0x6e)
+      const sound =
+        fake.locked &&
+        keysOf(params) === '70,71,6d,72,73,7b,7c,7d,6e' &&
+        name instanceof Uint8Array &&
+        name[name.length - 1] === 0 &&
+        data instanceof Uint8Array &&
+        data.length === IMPULSE_BYTES &&
+        (params.get(0x71) as number) >>> 0 === impulseChecksum(data) &&
+        params.get(0x72) === 1 &&
+        params.get(0x73) === 3 &&
+        params.get(0x7b) === false
+      if (!sound) return REFUSED
+      fake.slots.set(index, { name: String.fromCharCode(...(name as Uint8Array).subarray(0, -1)), data: data as Uint8Array })
+      return { result: null }
+    }
+    default:
+      return REFUSED
+  }
+}
+
+/** A capture converted by the app itself. */
+const capture = (seed = 1): Uint8Array => wavSamples(convertNam(sampleNam({ seed }), { includeLevel: true, includeLoudness: true }).wav)
 
 describe('A session with the unit', () => {
   let stomp: Stomp | null = null
@@ -430,7 +511,7 @@ describe('A session with the unit', () => {
 
   it("waits for the unit's window before sending more", async () => {
     const fake = unit()
-    const link = new Link(fake, { purgeMs: 0, heartbeatMs: 1000, timeoutMs: 300, lingerMs: 0 })
+    const link = new Link(fake, { purgeMs: 0, heartbeatMs: 1000, timeoutMs: 300, lingerMs: 0, checkMs: 5 })
     await link.open()
     const channel = await Channel.open(link, { local: 0x1000, remote: 0x03ed, service: 6 })
     fake.handlers.set(EDITOR, (_command, params) => ({ result: (params as Uint8Array).length }))
@@ -517,5 +598,146 @@ describe('A session with the unit', () => {
     await expect(stomp.current()).rejects.toMatchObject({ code: 'closed' })
     expect(fake.problems).toEqual([])
     stomp = null
+  })
+})
+
+describe('A capture as a User IR', () => {
+  it('takes the samples of a .wav the app converted, and no other .wav', () => {
+    const { wav } = convertNam(sampleNam(), { includeLevel: true, includeLoudness: true })
+    const data = wavSamples(wav)
+    expect(data).toHaveLength(IMPULSE_BYTES)
+    expect(hex(data.subarray(0, 12))).toBe('00 00 00 3f 00 00 00 bf 00 00 40 40')
+    const changed = (at: number, value: number, size: 2 | 4 = 2): Uint8Array => {
+      const copy = wav.slice()
+      const view = new DataView(copy.buffer)
+      if (size === 2) view.setUint16(at, value, true)
+      else view.setUint32(at, value, true)
+      return copy
+    }
+    const refused: [string, Uint8Array][] = [
+      ['not a wav', pack('nope')],
+      ['16-bit', changed(34, 16)],
+      ['whole numbers', changed(20, 1)],
+      ['stereo', changed(22, 2)],
+      ['44.1 kHz', changed(24, 44100, 4)],
+      ['shorter', wav.slice(0, wav.length - 4)],
+      ['no silence at the end', changed(wav.length - 4, 0x3f000000, 4)],
+      ['too loud', changed(44 + 40, 0x41800000, 4)],
+      ['not a number', changed(44 + 40, 0x7fc00000, 4)],
+    ]
+    for (const [why, bad] of refused) expect(() => wavSamples(bad), why).toThrow(HxError)
+  })
+
+  it('names it as HX Edit would', () => {
+    expect(impulseName('Clean - Edge of Breakup NAM')).toBe('Clean - Edge of Breakup NAM')
+    expect(impulseName('a;b[c]{d}|e\\f~g`h<i>')).toBe('a?b?c??d??e?f?g?h?i?')
+    expect(impulseName('Ação é ótima')).toBe('A??o ? ?tima')
+    expect(impulseName('x'.repeat(80))).toHaveLength(63)
+  })
+
+  it('packs the write key for key as HX Edit does', () => {
+    const data = new Uint8Array(IMPULSE_BYTES)
+    data.set(bytes('00 00 00 3f 00 00 00 bf'))
+    expect(impulseChecksum(data)).toBe(0xfe000000)
+    const sent = pack(storeParams(5, 'A;b NAM', data))
+    expect(hex(sent.subarray(0, 44))).toBe(
+      '89 70 05 71 d2 fe 00 00 00 6d a8 41 3f 62 20 4e 41 4d 00 72 01 73 03 7b c2 7c c2 7d 00 6e da 20 00 00 00 00 3f 00 00 00 bf 00 00 00',
+    )
+    expect(sent).toHaveLength(33 + IMPULSE_BYTES)
+    data.set(bytes('00 00 00 3f 00 00 00 00'))
+    expect(hex(pack(storeParams(127, 'x'.repeat(40), data)).subarray(0, 12))).toBe('89 70 7f 71 ce 3f 00 00 00 6d da 00')
+    expect(() => storeParams(128, 'x', data)).toThrow(HxError)
+    expect(() => storeParams(0, 'x', data.subarray(4))).toThrow(HxError)
+  })
+})
+
+describe('The User IRs of the unit', () => {
+  let stomp: Stomp | null = null
+  afterEach(async () => {
+    await stomp?.close().catch(() => undefined)
+    stomp = null
+  })
+
+  it('lists them by slot and reads their samples', async () => {
+    const fake = unit()
+    fake.slots.set(29, { name: 'Recto NAM', data: capture(2) })
+    fake.slots.set(0, { name: 'Ampeg NAM', data: capture(1) })
+    stomp = await Stomp.connect(fake, FAST)
+    expect(await stomp.impulses()).toEqual([
+      { index: 0, name: 'Ampeg NAM', hash: impulseHash(capture(1)) },
+      { index: 29, name: 'Recto NAM', hash: impulseHash(capture(2)) },
+    ])
+    expect(await stomp.impulseData(29)).toEqual(capture(2))
+    expect(fake.did).toEqual([])
+    expect(fake.problems).toEqual([])
+  })
+
+  it('writes a capture into a slot with the screen locked, and finds it there', async () => {
+    const fake = unit()
+    fake.slots.set(0, { name: 'Ampeg NAM', data: capture(1) })
+    stomp = await Stomp.connect(fake, FAST)
+    const data = capture(3)
+    expect(await stomp.storeImpulse(11, 'Matchless; Edge NAM', data)).toEqual({ index: 11, name: 'Matchless? Edge NAM', hash: impulseHash(data) })
+    expect(fake.did).toEqual(['lock', 'set', 'unlock'])
+    expect(fake.locked).toBe(false)
+    expect(await stomp.impulseData(11)).toEqual(data)
+    expect(fake.problems).toEqual([])
+  })
+
+  it('waits for a write the unit accepts and finishes later', async () => {
+    const fake = unit()
+    stomp = await Stomp.connect(fake, FAST)
+    const data = capture(4)
+    fake.handlers.set(LIBRARIAN, (command, params) => {
+      if (command !== 0x09) return librarian(fake, command, params)
+      // It was accepted with the screen locked; the unit stores it after the host has unlocked.
+      setTimeout(() => {
+        fake.locked = true
+        librarian(fake, command, params)
+        fake.locked = false
+      }, 30)
+      return { status: 1 }
+    })
+    expect((await stomp.storeImpulse(127, 'Late NAM', data)).hash).toBe(impulseHash(data))
+    expect(fake.problems).toEqual([])
+  })
+
+  it('unlocks the screen when the unit refuses the write, and says so', async () => {
+    const fake = unit()
+    stomp = await Stomp.connect(fake, FAST)
+    fake.handlers.set(LIBRARIAN, (command, params) => (command === 0x09 ? { status: 255, result: new Map([[0x6f, 3]]) } : librarian(fake, command, params)))
+    await expect(stomp.storeImpulse(3, 'No NAM', capture())).rejects.toMatchObject({ code: 'refused' })
+    expect(fake.did).toEqual(['lock', 'unlock'])
+    expect(fake.slots.size).toBe(0)
+  })
+
+  it('says so when the unit takes the write and does not keep it', async () => {
+    const fake = unit()
+    stomp = await Stomp.connect(fake, FAST)
+    fake.handlers.set(LIBRARIAN, (command, params) => (command === 0x09 ? { result: null } : librarian(fake, command, params)))
+    await expect(stomp.storeImpulse(3, 'Lost NAM', capture())).rejects.toMatchObject({ code: 'refused', message: expect.stringContaining('slot 4') })
+    expect(fake.did).toEqual(['lock', 'unlock'])
+  })
+
+  it('does not write to a unit that describes its IRs another way', async () => {
+    const fake = unit()
+    fake.slots.set(0, { name: 'Ampeg NAM', data: capture(1) })
+    stomp = await Stomp.connect(fake, FAST)
+    fake.handlers.set(LIBRARIAN, (command, params) => {
+      const answer = librarian(fake, command, params)
+      if (command === 0x0c && answer?.result instanceof Map) answer.result.delete(0x7b)
+      return answer
+    })
+    await expect(stomp.storeImpulse(3, 'Other NAM', capture())).rejects.toMatchObject({ code: 'protocol' })
+    expect(fake.did).toEqual([])
+  })
+
+  it('passes over an answer that came late for an earlier request', async () => {
+    const fake = unit()
+    fake.lateReplies = true
+    stomp = await Stomp.connect(fake, FAST)
+    expect((await stomp.current()).name).toBe('Clean NAM')
+    expect(await stomp.impulses()).toEqual([])
+    expect(fake.problems).toEqual([])
   })
 })
