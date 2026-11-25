@@ -13,8 +13,13 @@ import { HxError } from './errors'
 /** What a reply holds. A str and a bin are both bytes. */
 export type Value = null | boolean | number | bigint | Uint8Array | Value[] | Map<Value, Value>
 
+/** A number to be written as a 32-bit float, which is how the unit keeps a knob that is not a whole number. */
+export class Float {
+  constructor(readonly value: number) {}
+}
+
 /** What a request can hold. A Map keeps its keys in the order they were set, and so do its bytes. */
-export type Packable = null | boolean | number | string | Uint8Array | Packable[] | Map<Packable, Packable>
+export type Packable = null | boolean | number | string | Uint8Array | Float | Packable[] | Map<Packable, Packable>
 
 const utf8 = new TextEncoder()
 
@@ -23,6 +28,7 @@ function packInto(out: number[], v: Packable): void {
   else if (v === false) out.push(0xc2)
   else if (v === true) out.push(0xc3)
   else if (typeof v === 'number') packInt(out, v)
+  else if (v instanceof Float) out.push(FLOAT32, ...float32(v.value))
   else if (typeof v === 'string') packStr(out, utf8.encode(v))
   else if (v instanceof Uint8Array) packStr(out, v)
   else if (Array.isArray(v)) {
@@ -39,6 +45,14 @@ function packInto(out: number[], v: Packable): void {
       packInto(out, value)
     }
   }
+}
+
+/** The tag of a 32-bit float, and its four bytes, big-endian. */
+export const FLOAT32 = 0xca
+export function float32(value: number): Uint8Array {
+  const bytes = new Uint8Array(4)
+  new DataView(bytes.buffer).setFloat32(0, value)
+  return bytes
 }
 
 function packInt(out: number[], n: number): void {
@@ -137,6 +151,29 @@ export class Unpacker {
       default:
         // 0xc1 is unused, and the unit's services send no extension types.
         throw new HxError('protocol', `The unit sent a MessagePack type this app does not read (0x${t.toString(16)}).`)
+    }
+  }
+
+  /**
+   * Moves to a value inside the next one, by the key of each map and the index of each
+   * list on the way down, and stops at its first byte. Throws when the way is not there.
+   */
+  seek(path: number[]): void {
+    for (const step of path) {
+      const tag = this.u8()
+      let found = false
+      if ((tag & 0xf0) === 0x80 || tag === 0xde || tag === 0xdf) {
+        const size = tag === 0xde ? this.u16() : tag === 0xdf ? this.u32() : tag & 0x0f
+        for (let i = 0; i < size && !found; i++) {
+          found = this.next() === step
+          if (!found) this.next()
+        }
+      } else if ((tag & 0xf0) === 0x90 || tag === 0xdc || tag === 0xdd) {
+        const size = tag === 0xdc ? this.u16() : tag === 0xdd ? this.u32() : tag & 0x0f
+        found = step < size
+        for (let i = 0; i < step && found; i++) this.next()
+      }
+      if (!found) throw new HxError('protocol', 'The preset from the HX Stomp is not laid out as expected.')
     }
   }
 

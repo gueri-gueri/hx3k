@@ -1,9 +1,17 @@
 import { type ReactNode, useState } from 'react'
-import type { ConversionRecord } from '@shared/types'
+import type { ConversionRecord, SendOutcome } from '@shared/types'
 import { HxError, call, hx } from '../api'
 import { type AppContext, useApp } from '../context'
+import type { Key, T } from '../i18n'
 import { Icon } from './Icon'
 import { Spinner } from './ui'
+
+/** Where the capture is now, and what is left to do for it to play. */
+function sentText(t: T, sent: SendOutcome): string {
+  const where = t(sent.already ? 'send.already' : 'send.done', { slot: sent.slot })
+  const next = t((sent.block ? `send.block.${sent.block}` : 'send.setModel') as Key, { slot: sent.slot })
+  return `${where} ${next}`
+}
 
 /** Where a capture was put on the HX Stomp: the number its block's Model knob takes. */
 export function SlotStatus({ record }: { record: ConversionRecord }): ReactNode {
@@ -26,7 +34,7 @@ export function SendButton({ record, onSent, disabled }: { record: ConversionRec
     setBusy(true)
     try {
       const sent = await call(hx.sendToDevice(record.id))
-      notify('ok', t(sent.already ? 'send.already' : 'send.done', { slot: sent.slot }))
+      notify('ok', sentText(t, sent))
       onSent?.(sent.record)
       await reloadLibrary()
     } catch (err) {
@@ -59,7 +67,7 @@ export function SendButton({ record, onSent, disabled }: { record: ConversionRec
 export async function sendAfterConvert(record: ConversionRecord, { t, notify, fail }: Pick<AppContext, 't' | 'notify' | 'fail'>): Promise<ConversionRecord> {
   try {
     const sent = await call(hx.sendToDevice(record.id))
-    notify('ok', t(sent.already ? 'send.already' : 'send.done', { slot: sent.slot }))
+    notify('ok', sentText(t, sent))
     return sent.record
   } catch (err) {
     const noUnit = err instanceof HxError && (err.code === 'device_not_found' || err.code === 'device_unsupported')

@@ -5,9 +5,10 @@ import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { convertNam } from '../src/main/convert'
 import { HxError } from '../src/main/hx/errors'
 import { type ImpulseEntry, impulseHash, wavSamples } from '../src/main/hx/impulse'
+import { NAM_MODEL_KNOB, presetBlocks } from '../src/main/hx/preset'
 import { sampleNam } from '../src/main/sampleNam'
 import type { ConversionInfo } from '../src/shared/types'
-import { FAST, type FakeStomp, capture, unit } from './fakeStomp'
+import { EDITOR, FAST, type FakeStomp, capture, presetBlob, unit } from './fakeStomp'
 
 // Sending a converted capture to the unit: which slot it goes to, what is
 // remembered about it, and what the user is told when it cannot go.
@@ -19,7 +20,8 @@ vi.mock('electron', () => ({
   app: { isPackaged: false, getPath: () => join(work, 'user-data') },
   shell: { trashItem: async (path: string) => rmSync(path) },
 }))
-vi.mock('../src/main/settings', () => ({ getSettings: () => ({ outputDir }) }))
+const settings = vi.hoisted(() => ({ pointBlock: false }))
+vi.mock('../src/main/settings', () => ({ getSettings: () => ({ outputDir, ...settings }) }))
 
 const { chooseSlot, sendToDevice, useDevicePort } = await import('../src/main/device')
 const { listConversions, saveConversion } = await import('../src/main/library')
@@ -62,6 +64,43 @@ describe('Sending a capture to the unit', () => {
   beforeEach(() => {
     fake = unit()
     useDevicePort(() => fake, FAST)
+    settings.pointBlock = false
+  })
+  const model = (): unknown => presetBlocks(fake.preset).find((b) => b.modelId === 555)?.values[NAM_MODEL_KNOB]
+
+  it('leaves the preset on the unit alone unless Settings asks', async () => {
+    const record = await converted('Not pointed', 30)
+    expect((await sendToDevice(record.id)).block).toBeUndefined()
+    expect(model()).toBe(5)
+  })
+
+  it('points the NAM A2 Lite block at the slot when Settings asks, also for a capture already there', async () => {
+    settings.pointBlock = true
+    fake.slots.set(0, { name: 'Theirs NAM', data: capture(9) })
+    const record = await converted('Pointed', 31)
+    expect(await sendToDevice(record.id)).toMatchObject({ slot: 2, already: false, block: 'set' })
+    expect(model()).toBe(2)
+    expect(fake.did).toEqual(['lock', 'set', 'unlock', 'preset'])
+    expect(await sendToDevice(record.id)).toMatchObject({ slot: 2, already: true, block: 'already' })
+    fake.preset = presetBlob([7])
+    expect(await sendToDevice(record.id)).toMatchObject({ slot: 2, already: true, block: 'set' })
+    expect(model()).toBe(2)
+  })
+
+  it('still sends the capture when the block cannot be pointed, and says which', async () => {
+    settings.pointBlock = true
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    fake.preset = presetBlob([])
+    const none = await converted('No block', 32)
+    expect(await sendToDevice(none.id)).toMatchObject({ slot: 1, block: 'none' })
+    fake.preset = presetBlob([1, 1])
+    expect(await sendToDevice(none.id)).toMatchObject({ slot: 1, already: true, block: 'several' })
+    fake.preset = presetBlob([9])
+    const editor = fake.handlers.get(EDITOR)
+    fake.handlers.set(EDITOR, (command, params) => (command === 0x15 ? { status: 255 } : editor?.(command, params)) as never)
+    expect(await sendToDevice(none.id)).toMatchObject({ slot: 1, already: true, block: 'failed' })
+    expect(warn).toHaveBeenCalledOnce()
+    warn.mockRestore()
   })
 
   it('puts it in the first free slot, under its file name, and remembers the slot', async () => {

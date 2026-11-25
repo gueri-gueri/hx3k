@@ -82,6 +82,8 @@ export interface Settings {
   includeLoudness: boolean
   /** Send each capture to the HX Stomp as soon as it is converted, when one is connected. */
   sendAfterConvert: boolean
+  /** After a capture is sent, point the NAM A2 Lite block of the preset on the unit at its slot. */
+  pointBlock: boolean
 }
 
 /** What the converter says about a capture (vendor/hxtra/nam2ir-core.js `info`). */
@@ -140,6 +142,12 @@ export interface SendOutcome {
   slot: number
   /** The unit already held this capture in that slot: nothing was written. */
   already: boolean
+  /**
+   * When Settings asks to point the NAM A2 Lite block at what is sent: it was set, it
+   * was on that slot already, the preset on the unit has no such block or has several,
+   * or the unit did not take the change. Absent when Settings does not ask.
+   */
+  block?: 'set' | 'already' | 'none' | 'several' | 'failed'
 }
 
 export interface AppState {

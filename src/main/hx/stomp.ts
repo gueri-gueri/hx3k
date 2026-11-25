@@ -1,7 +1,8 @@
 // A session with a running HX Stomp, over USB, the way HX Edit holds one.
 //
 // It reads which preset is loaded, the names of a setlist's presets, the preset
-// being edited and the User IRs. The one thing it writes is a User IR slot.
+// being edited and the User IRs. It writes two things: a User IR slot, and the
+// Model knob of the NAM A2 Lite block in the preset being edited.
 //
 // Follows HxCtl in HXtra's tools/hx_ctl.py.
 
@@ -19,13 +20,14 @@ import {
 } from './impulse'
 import { Link, TIMING, type Timing, type UsbPort, sleep } from './link'
 import { type Packable, type Value, text } from './msgpack'
-import { type Block, presetBlocks } from './preset'
+import { type Block, NAM_MODEL_ID, NAM_MODEL_KNOB, presetBlocks, withKnob } from './preset'
 
 // The three streams HX Edit opens.
 export const EDITOR: Service = { local: 0x1000, remote: 0x03ed, service: 6 }
 export const LIBRARIAN: Service = { local: 0x1001, remote: 0x03ef, service: 2 }
 export const NOTIFY: Service = { local: 0x1002, remote: 0x03f0, service: 4 }
 
+const EDITOR_SET_EDIT_BUFFER = 0x15
 const EDITOR_GET_EDIT_BUFFER = 0x16
 const EDITOR_GET_CURRENT_PRESET = 0x17
 const LIBRARIAN_PRESET_LIST = 0x01
@@ -39,6 +41,7 @@ const LIBRARIAN_LOCK_UI = 0xff
 const K_SETLIST = 0x6b
 const K_PRESET = 0x6c
 const K_NAME = 0x6d
+const K_PRESET_BLOB = 0x6e
 
 /** A preset's blob and a setlist's 126 names take longer than a short answer. */
 const LONG_MS = 5000
@@ -54,6 +57,12 @@ export interface CurrentPreset {
   preset: number
   name: string
 }
+
+/**
+ * What became of pointing the NAM A2 Lite block at a slot: it was set, it was
+ * on that slot already, or the preset has no such block, or more than one.
+ */
+export type Pointed = 'set' | 'already' | 'none' | 'several'
 
 export interface PresetName {
   /** Counts from 0. */
@@ -211,6 +220,33 @@ export class Stomp {
   /** The blocks of the preset being edited. */
   async blocks(): Promise<Block[]> {
     return presetBlocks(await this.editBuffer())
+  }
+
+  /**
+   * Points the NAM A2 Lite block of the preset being edited at a User IR slot (1 to
+   * 128), so the capture there plays. The preset is changed as turning the block's
+   * Model knob changes it: on the unit, not in its storage. Only a preset with
+   * exactly one such block is touched.
+   *
+   * The unit takes the whole preset back with the knob's bytes changed (as HXtra's
+   * tools/hx_ctl.py sets a preset), and answers before it is done: so this reads
+   * the preset again until the knob shows the slot.
+   */
+  async pointNam(slot: number): Promise<Pointed> {
+    const blob = await this.editBuffer()
+    const nam = presetBlocks(blob).filter((b) => b.modelId === NAM_MODEL_ID)
+    if (nam.length !== 1) return nam.length ? 'several' : 'none'
+    const { place } = nam[0]
+    if (nam[0].values[NAM_MODEL_KNOB] === slot) return 'already'
+    await this.editor.send(EDITOR_SET_EDIT_BUFFER, new Map([[K_PRESET_BLOB, withKnob(blob, place, NAM_MODEL_KNOB, slot)]]), STORE_MS)
+    for (let attempt = 0; attempt < STORED_CHECKS; attempt++) {
+      await sleep(this.link.timing.checkMs)
+      // While the unit loads the preset it may not answer for it yet.
+      const now = await this.blocks().catch(() => [])
+      const block = now.find((b) => b.place === place)
+      if (block?.modelId === NAM_MODEL_ID && block.values[NAM_MODEL_KNOB] === slot) return 'set'
+    }
+    throw new HxError('refused', 'The HX Stomp did not take the change to its NAM A2 Lite block.')
   }
 
   async close(): Promise<void> {

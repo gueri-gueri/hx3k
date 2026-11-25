@@ -9,12 +9,24 @@
 // Follows decode_preset and summarize in HXtra's tools/hx_ctl.py.
 
 import { HxError } from './errors'
-import { Unpacker, type Value, text } from './msgpack'
+import { FLOAT32, Unpacker, type Value, float32, text } from './msgpack'
+
+/**
+ * HXtra's NAM A2 Lite block on the HX Stomp and the HX Stomp XL. It sits on the
+ * model number of a stock fuzz it replaces, with that fuzz's ten knobs type for
+ * type, so that HX Edit keeps the block (HXtra's tools/patch_amp.py, EQ_FX_PARAMS):
+ * Input, Treble, Output, Polarity, Bass, Mid, Model, Mid Freq, Q, High Cut.
+ * Model is the User IR slot, 1 to 128, kept as a float.
+ */
+export const NAM_MODEL_ID = 555
+export const NAM_MODEL_KNOB = 6
 
 export interface Block {
   path: 'A' | 'B'
   /** 0 to 7, from the left. */
   position: number
+  /** Where the block is in the preset's list of places. */
+  place: number
   /** The model's number in the firmware's table. HXtra's NAM block has one of its own, which depends on the build. */
   modelId: number | null
   enabled: boolean
@@ -59,11 +71,29 @@ export function presetBlocks(blob: Uint8Array): Block[] {
       out.push({
         path,
         position,
+        place: first + position,
         modelId: typeof modelId === 'number' ? modelId : null,
         enabled: body.get(K_ENABLED) === true,
         values: Array.isArray(values) ? values.filter((v) => typeof v === 'number' || typeof v === 'boolean') : [],
       })
     }
   }
+  return out
+}
+
+/**
+ * The preset with one knob of one block set to `value`. Only the knob's four
+ * bytes change: everything else stays as the unit packed it, which is what it
+ * takes back. Only a knob the unit keeps as a 32-bit float can be set this way.
+ */
+export function withKnob(blob: Uint8Array, place: number, knob: number, value: number): Uint8Array {
+  const reader = new Unpacker(blob)
+  reader.next()
+  reader.next()
+  reader.seek([SECTION_BLOCKS, K_PLACES, place, K_BODY, K_PARAMS, K_VALUES, knob])
+  const at = reader.offset
+  if (blob[at] !== FLOAT32 || at + 5 > blob.length) throw new HxError('protocol', 'That knob is not a number the HX Stomp keeps as a float.')
+  const out = blob.slice()
+  out.set(float32(value), at + 1)
   return out
 }

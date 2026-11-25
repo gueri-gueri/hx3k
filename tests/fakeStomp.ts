@@ -5,7 +5,8 @@
 import { convertNam } from '../src/main/convert'
 import { IMPULSE_BYTES, impulseChecksum, impulseHash, wavSamples } from '../src/main/hx/impulse'
 import type { Timing, UsbPort } from '../src/main/hx/link'
-import { type Packable, type Value, pack, unpack } from '../src/main/hx/msgpack'
+import { Float, type Packable, type Value, pack, unpack } from '../src/main/hx/msgpack'
+import { presetBlocks } from '../src/main/hx/preset'
 import { sampleNam } from '../src/main/sampleNam'
 import { F_DATA, F_FIN, F_HEARTBEAT, F_SYN, F_WIN, type Packet, decodeTransfer, encodePacket } from '../src/main/hx/wire'
 
@@ -61,7 +62,9 @@ export class FakeStomp implements UsbPort {
   lateReplies = false
   /** The User IRs: what each slot holds. */
   readonly slots = new Map<number, { name: string; data: Uint8Array }>()
-  /** What the librarian was asked to do to the IRs and the screen, in order. */
+  /** The preset being edited. */
+  preset: Uint8Array = new Uint8Array(0)
+  /** What the unit was asked to change, in order: the IRs, the screen lock, the preset. */
   readonly did: string[] = []
   locked = false
   fins = 0
@@ -242,8 +245,13 @@ export const FAST: Partial<Timing> = { purgeMs: 0, timeoutMs: 300, lingerMs: 0, 
 export const EDITOR = 6
 export const LIBRARIAN = 2
 
-/** A preset with a NAM block (model 147, Model knob at slot 5) on path A and a delay on path B. */
-export function presetBlob(): Uint8Array {
+/**
+ * A preset with a delay on path B and, on path A, one NAM A2 Lite block for each
+ * Model given: HXtra's ten knobs, the Model a float as the unit keeps it.
+ */
+export function presetBlob(models: number[] = [5]): Uint8Array {
+  const half = new Float(0.5)
+  const nam = (model: number): Packable[] => [half, half, half, 0, half, half, new Float(model), new Float(650), 0, new Float(1)]
   const empty = new Map<Packable, Packable>([
     [19, 8],
     [20, null],
@@ -262,7 +270,7 @@ export function presetBlob(): Uint8Array {
       ],
     ])
   const places: Packable[] = Array.from({ length: 20 }, () => empty)
-  places[2] = block(147, true, [5, 3, true])
+  models.forEach((model, i) => (places[2 + i] = block(555, true, nam(model))))
   places[11] = block(301, false, [1])
   const sections = new Map<Packable, Packable>([
     [7, null],
@@ -273,7 +281,8 @@ export function presetBlob(): Uint8Array {
 
 export function unit(): FakeStomp {
   const fake = new FakeStomp()
-  fake.handlers.set(EDITOR, (command) => {
+  fake.preset = presetBlob()
+  fake.handlers.set(EDITOR, (command, params) => {
     if (command === 0x17) {
       return {
         result: new Map<Packable, Packable>([
@@ -284,7 +293,15 @@ export function unit(): FakeStomp {
         ]),
       }
     }
-    if (command === 0x16) return { result: concat(presetBlob(), new Uint8Array(0)) }
+    if (command === 0x16) return { result: fake.preset }
+    if (command === 0x15) {
+      // The whole preset comes back; the unit accepts it, and has it loaded a moment later.
+      const blob = params instanceof Map ? params.get(0x6e) : null
+      if (!(blob instanceof Uint8Array) || presetBlocks(blob).length === 0) return undefined as unknown as Answer
+      fake.did.push('preset')
+      setTimeout(() => (fake.preset = blob), 12)
+      return { status: 1 }
+    }
     return undefined as unknown as Answer
   })
   fake.handlers.set(LIBRARIAN, (command, params) => librarian(fake, command, params))

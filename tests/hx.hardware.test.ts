@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { basename } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { IMPULSE_SLOTS, impulseHash, wavSamples } from '../src/main/hx/impulse'
+import { NAM_MODEL_ID, NAM_MODEL_KNOB } from '../src/main/hx/preset'
 import { Stomp } from '../src/main/hx/stomp'
 import { listStomps, openStomp } from '../src/main/hx/usb'
 
@@ -14,6 +15,10 @@ import { listStomps, openStomp } from '../src/main/hx/usb'
 //   HX3K_WAV='/path/to/capture NAM.wav' npm run hx:import
 // writes that capture into the first free User IR slot, or into slot HX3K_SLOT
 // (1 to 128). It refuses a slot that is taken unless HX3K_REPLACE=1.
+//
+//   HX3K_POINT=12 npm run hx:point
+// sets the Model of the NAM A2 Lite block in the preset on the unit to that slot.
+// The preset is changed, not saved.
 
 describe.skipIf(!process.env.HX3K_STOMP)('A real HX Stomp', () => {
   it('says which preset is loaded, the names of its setlist and the blocks being edited', { timeout: 30_000 }, async () => {
@@ -72,6 +77,31 @@ describe.skipIf(!process.env.HX3K_STOMP || !WAV)('A real HX Stomp, written to', 
       const after = await stomp.impulses()
       expect(after.filter((i) => i.index !== index)).toEqual(before.filter((i) => i.index !== index))
       console.log(`Set the NAM A2 Lite block's Model to ${index + 1}.`)
+    } finally {
+      await stomp.close()
+    }
+  })
+})
+
+const POINT = process.env.HX3K_POINT
+
+describe.skipIf(!process.env.HX3K_STOMP || !POINT)('A real HX Stomp, its NAM block set', () => {
+  it('point: sets the Model of the NAM A2 Lite block and reads it back', { timeout: 60_000 }, async () => {
+    const slot = Number(POINT)
+    const stomp = await Stomp.connect(openStomp())
+    try {
+      const nam = (blocks: Awaited<ReturnType<Stomp['blocks']>>) => blocks.filter((b) => b.modelId === NAM_MODEL_ID)
+      const before = await stomp.blocks()
+      console.log('NAM A2 Lite blocks before:', nam(before).map((b) => `path ${b.path} position ${b.position + 1}: Model ${String(b.values[NAM_MODEL_KNOB])}`))
+      const pointed = await stomp.pointNam(slot)
+      console.log(`pointing at slot ${slot}:`, pointed)
+      const after = await stomp.blocks()
+      console.log('NAM A2 Lite blocks after:', nam(after).map((b) => `path ${b.path} position ${b.position + 1}: Model ${String(b.values[NAM_MODEL_KNOB])}`))
+      console.log('notifications:', stomp.notes.length)
+      if (pointed === 'set' || pointed === 'already') expect(nam(after)[0].values[NAM_MODEL_KNOB]).toBe(slot)
+      // Everything but that one knob is as it was.
+      const rest = (blocks: typeof before) => blocks.map((b) => ({ ...b, values: b.modelId === NAM_MODEL_ID ? b.values.filter((_, i) => i !== NAM_MODEL_KNOB) : b.values }))
+      expect(rest(after)).toEqual(rest(before))
     } finally {
       await stomp.close()
     }

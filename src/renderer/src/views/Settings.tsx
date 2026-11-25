@@ -100,6 +100,13 @@ export function SettingsView(): ReactNode {
             </div>
             <Toggle checked={settings.sendAfterConvert} onChange={(v) => void update({ sendAfterConvert: v })} label={t('settings.autoSend')} />
           </div>
+          <div className="setting">
+            <div className="setting-text">
+              <strong>{t('settings.point')}</strong>
+              <span>{t('settings.point.help')}</span>
+            </div>
+            <Toggle checked={settings.pointBlock} onChange={(v) => void update({ pointBlock: v })} label={t('settings.point')} />
+          </div>
         </div>
       </section>
 

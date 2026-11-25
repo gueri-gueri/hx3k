@@ -4,8 +4,8 @@ import { convertNam } from '../src/main/convert'
 import { HxError } from '../src/main/hx/errors'
 import { IMPULSE_BYTES, impulseChecksum, impulseHash, impulseName, storeParams, wavSamples } from '../src/main/hx/impulse'
 import { Link, sleep } from '../src/main/hx/link'
-import { type Packable, pack, text, unpack } from '../src/main/hx/msgpack'
-import { presetBlocks } from '../src/main/hx/preset'
+import { Float, type Packable, Unpacker, pack, text, unpack } from '../src/main/hx/msgpack'
+import { NAM_MODEL_KNOB, presetBlocks, withKnob } from '../src/main/hx/preset'
 import { Stomp } from '../src/main/hx/stomp'
 import { sampleNam } from '../src/main/sampleNam'
 import { F_DATA, F_HEARTBEATS, F_SYN, F_WIN, decodeTransfer, encodePacket } from '../src/main/hx/wire'
@@ -73,6 +73,17 @@ describe('MessagePack', () => {
     expect(() => unpack(bytes('92 01'))).toThrow(HxError)
     expect(() => unpack(bytes('01 02'))).toThrow(HxError)
     expect(() => unpack(bytes('c1'))).toThrow(HxError)
+  })
+
+  it('packs a float as the unit keeps a knob, and finds a value inside another', () => {
+    expect(hex(pack(new Float(12)))).toBe('ca 41 40 00 00')
+    const nested = pack(new Map<Packable, Packable>([[1, 'skip'], [4, [7, new Map<Packable, Packable>([[9, new Float(0.5)]])]]]))
+    const reader = new Unpacker(nested)
+    reader.seek([4, 1, 9])
+    expect(hex(nested.subarray(reader.offset))).toBe('ca 3f 00 00 00')
+    expect(() => new Unpacker(nested).seek([4, 2])).toThrow(HxError)
+    expect(() => new Unpacker(nested).seek([5])).toThrow(HxError)
+    expect(() => new Unpacker(nested).seek([1, 0])).toThrow(HxError)
   })
 
   it('reads a name up to its first NUL', () => {
@@ -148,8 +159,8 @@ describe('A session with the unit', () => {
     const fake = unit()
     stomp = await Stomp.connect(fake, FAST)
     expect(await stomp.blocks()).toEqual([
-      { path: 'A', position: 1, modelId: 147, enabled: true, values: [5, 3, true] },
-      { path: 'B', position: 0, modelId: 301, enabled: false, values: [1] },
+      { path: 'A', position: 1, place: 2, modelId: 555, enabled: true, values: [0.5, 0.5, 0.5, 0, 0.5, 0.5, 5, 650, 0, 1] },
+      { path: 'B', position: 0, place: 11, modelId: 301, enabled: false, values: [1] },
     ])
     expect(presetBlocks(presetBlob())).toHaveLength(2)
     expect(() => presetBlocks(pack('nope'))).toThrow(HxError)
@@ -395,5 +406,63 @@ describe('The User IRs of the unit', () => {
     expect((await stomp.current()).name).toBe('Clean NAM')
     expect(await stomp.impulses()).toEqual([])
     expect(fake.problems).toEqual([])
+  })
+})
+
+describe('The NAM A2 Lite block of the preset being edited', () => {
+  let stomp: Stomp | null = null
+  afterEach(async () => {
+    await stomp?.close().catch(() => undefined)
+    stomp = null
+  })
+  const model = (blob: Uint8Array, place = 2): unknown => presetBlocks(blob).find((b) => b.place === place)?.values[NAM_MODEL_KNOB]
+
+  it('has its Model set by changing four bytes of the preset, and nothing else', () => {
+    const before = presetBlob([5])
+    const after = withKnob(before, 2, NAM_MODEL_KNOB, 12)
+    expect(model(after)).toBe(12)
+    const changed = [...after].flatMap((b, i) => (b === before[i] ? [] : [i]))
+    expect(after).toHaveLength(before.length)
+    expect(changed.length).toBeGreaterThan(0)
+    expect(changed[changed.length - 1] - changed[0]).toBeLessThan(4)
+    expect(presetBlocks(after).map((b) => ({ ...b, values: [] }))).toEqual(presetBlocks(before).map((b) => ({ ...b, values: [] })))
+  })
+
+  it('is left alone when the knob is not a float, or the place holds no block', () => {
+    expect(() => withKnob(presetBlob(), 2, 3, 1)).toThrow(HxError)
+    expect(() => withKnob(presetBlob(), 5, NAM_MODEL_KNOB, 1)).toThrow(HxError)
+    expect(() => withKnob(presetBlob(), 2, 10, 1)).toThrow(HxError)
+  })
+
+  it('is pointed at a slot, on the unit', async () => {
+    const fake = unit()
+    stomp = await Stomp.connect(fake, FAST)
+    expect(await stomp.pointNam(12)).toBe('set')
+    expect(model(fake.preset)).toBe(12)
+    expect(fake.did).toEqual(['preset'])
+    expect(await stomp.pointNam(12)).toBe('already')
+    expect(fake.did).toEqual(['preset'])
+    expect(fake.problems).toEqual([])
+  })
+
+  it('is not touched when the preset has none, or more than one', async () => {
+    const fake = unit()
+    stomp = await Stomp.connect(fake, FAST)
+    fake.preset = presetBlob([])
+    expect(await stomp.pointNam(12)).toBe('none')
+    fake.preset = presetBlob([3, 4])
+    expect(await stomp.pointNam(12)).toBe('several')
+    expect(fake.did).toEqual([])
+  })
+
+  it('says so when the unit refuses the preset, or takes it and does not change', async () => {
+    const fake = unit()
+    stomp = await Stomp.connect(fake, FAST)
+    const editor = fake.handlers.get(EDITOR)
+    fake.handlers.set(EDITOR, (command, params) => (command === 0x15 ? { status: 255, result: new Map([[0x6f, 2]]) } : editor?.(command, params)) as never)
+    await expect(stomp.pointNam(12)).rejects.toMatchObject({ code: 'refused' })
+    fake.handlers.set(EDITOR, (command, params) => (command === 0x15 ? { status: 1 } : editor?.(command, params)) as never)
+    await expect(stomp.pointNam(12)).rejects.toMatchObject({ code: 'refused', message: expect.stringContaining('NAM A2 Lite') })
+    expect(model(fake.preset)).toBe(5)
   })
 })

@@ -19,6 +19,7 @@ function defaults(): Settings {
     includeLevel: true,
     includeLoudness: true,
     sendAfterConvert: false,
+    pointBlock: false,
   }
 }
 
@@ -36,6 +37,7 @@ export function getSettings(): Settings {
       includeLevel: typeof saved.includeLevel === 'boolean' ? saved.includeLevel : base.includeLevel,
       includeLoudness: typeof saved.includeLoudness === 'boolean' ? saved.includeLoudness : base.includeLoudness,
       sendAfterConvert: typeof saved.sendAfterConvert === 'boolean' ? saved.sendAfterConvert : base.sendAfterConvert,
+      pointBlock: typeof saved.pointBlock === 'boolean' ? saved.pointBlock : base.pointBlock,
     }
   }
   return cached
@@ -74,6 +76,7 @@ export function updateSettings(patch: Partial<Settings>): Settings {
   if (patch.includeLevel !== undefined) next.includeLevel = Boolean(patch.includeLevel)
   if (patch.includeLoudness !== undefined) next.includeLoudness = Boolean(patch.includeLoudness)
   if (patch.sendAfterConvert !== undefined) next.sendAfterConvert = Boolean(patch.sendAfterConvert)
+  if (patch.pointBlock !== undefined) next.pointBlock = Boolean(patch.pointBlock)
   cached = next
   writeJson(file(), next)
   return next

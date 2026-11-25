@@ -17,7 +17,8 @@ app, and it comes back ready for the HX Stomp.
 - **Convert**: downloads the model you chose and writes `<name> NAM.wav` to the output folder.
 - **Local files**: converts `.nam` files you already have, with no account and no network.
 - **Send to HX Stomp**: puts a converted capture in a free User IR slot of the HX Stomp connected by USB and tells
-  you the slot's number, so HX Edit is not needed. Settings can have it done as soon as a capture is converted.
+  you the slot's number, so HX Edit is not needed. Settings can have it done as soon as a capture is converted,
+  and can have the NAM A2 Lite block of the preset on the unit pointed at that slot, so the capture plays at once.
   macOS and Linux (not tried on Linux, where the user needs access to the USB device); on Windows Line 6's driver
   keeps the unit to itself, and the `.wav` goes in with HX Edit.
 - **Credits**: writes `TONE3000 credits.txt` beside the `.wav` files, with the creator, license and link of each
@@ -85,6 +86,7 @@ with no key and no network. It only works outside the packaged app.
 | `npm run test:e2e` | Drives the compiled app, in sample mode, from the first screen to the `.wav` files on disk |
 | `npm run hx:probe` | Reads the loaded preset, the setlist's names, the blocks and the User IRs from a real HX Stomp over USB (macOS and Linux, HX Edit closed); changes nothing on it |
 | `HX3K_WAV='… NAM.wav' npm run hx:import` | Writes a converted capture into the first free User IR slot of a real HX Stomp, or into slot `HX3K_SLOT`, and reads it back |
+| `HX3K_POINT=12 npm run hx:point` | Sets the Model of the NAM A2 Lite block in the preset on a real HX Stomp to that slot (changed, not saved), and reads it back |
 | `npm run dist` | Packages with electron-builder into `release/` (dmg/zip, NSIS, AppImage/deb) |
 | `npm run icon` | Regenerates `build/icon.png` from `build/icon.svg` |
 
@@ -116,7 +118,7 @@ on first launch, and Windows shows SmartScreen's *More info → Run anyway*.
 | `src/main/convert.ts` | Calls HXtra's converter |
 | `src/main/library.ts` | Writes the `.wav` files, the history and the credits file |
 | `src/main/hx/` | The HX Stomp's USB protocol, as HX Edit speaks it: reads presets and User IRs, writes a User IR slot |
-| `src/main/device.ts` | Sends a converted capture to the unit: picks the slot, never one that holds something else |
+| `src/main/device.ts` | Sends a converted capture to the unit: picks the slot, never one that holds something else, and points the NAM A2 Lite block at it when asked |
 | `src/main/tokenStore.ts` | Tokens encrypted with `safeStorage` (Keychain, DPAPI, libsecret) |
 | `src/preload/index.ts` | The `window.hx` bridge; the interface has no Node and no network |
 | `src/renderer/src/styles/tokens.css` | TONE3000's `--t3k-*` tokens |

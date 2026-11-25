@@ -4,6 +4,9 @@
 // The capture goes where the unit already has it, else back to the slot it was
 // sent to before if that slot is still its own, else to the first free slot.
 // A slot that holds anything else is never written over.
+//
+// When Settings asks, the NAM A2 Lite block of the preset on the unit is then
+// pointed at that slot, so the capture plays at once.
 
 import { readFile } from 'node:fs/promises'
 import type { ConversionRecord, DevicePlace, SendOutcome } from '@shared/types'
@@ -14,6 +17,7 @@ import { IMPULSE_SLOTS, type ImpulseEntry, impulseHash, wavSamples } from './hx/
 import { type Timing, type UsbPort, sleep } from './hx/link'
 import { Stomp } from './hx/stomp'
 import { findConversion, setDevicePlace } from './library'
+import { getSettings } from './settings'
 
 type OpenPort = () => UsbPort | Promise<UsbPort>
 
@@ -32,6 +36,7 @@ export interface Choice {
   index: number
   /** The unit already holds these samples there. */
   already: boolean
+  block?: SendOutcome['block']
 }
 
 /** The slot a capture goes to, or null when none is free. */
@@ -70,7 +75,13 @@ async function onUnit(record: ConversionRecord, name: string, data: Uint8Array, 
     const choice = chooseSlot(await stomp.impulses(), hash, record.device)
     if (!choice) throw new AppError('device_full', 'Every User IR slot of the HX Stomp is taken.')
     if (!choice.already) await stomp.storeImpulse(choice.index, name, data)
-    return choice
+    if (!getSettings().pointBlock) return choice
+    // The capture is on the unit either way: a block that will not be set does not undo that.
+    const block = await stomp.pointNam(choice.index + 1).catch((err: unknown) => {
+      console.warn('The NAM A2 Lite block could not be pointed at the capture.', err)
+      return 'failed' as const
+    })
+    return { ...choice, block }
   } catch (err) {
     throw deviceError(err)
   } finally {
@@ -91,7 +102,7 @@ async function onSampleUnit(record: ConversionRecord, name: string, hash: string
     if (at >= 0) sampleUnit.splice(at, 1)
     sampleUnit.push({ index: choice.index, name, hash })
   }
-  return choice
+  return getSettings().pointBlock ? { ...choice, block: 'set' } : choice
 }
 
 async function send(id: string): Promise<SendOutcome> {
@@ -108,7 +119,8 @@ async function send(id: string): Promise<SendOutcome> {
   const name = record.fileName.replace(/\.wav$/i, '')
   const choice = MOCK ? await onSampleUnit(record, name, hash) : await onUnit(record, name, data, hash)
   const slot = choice.index + 1
-  return { record: setDevicePlace(id, { slot, hash, sentAt: new Date().toISOString() }), slot, already: choice.already }
+  const kept = setDevicePlace(id, { slot, hash, sentAt: new Date().toISOString() })
+  return { record: kept, slot, already: choice.already, ...(choice.block ? { block: choice.block } : {}) }
 }
 
 // One session with the unit at a time: it has one message interface.
