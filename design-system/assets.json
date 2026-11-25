@@ -1,0 +1,8 @@
+[
+  { "group": "Logos", "name": "hx3k-logo.svg", "from": "src/renderer/src/assets/logo/hx3k-logo.svg" },
+  { "group": "Logos", "name": "hx3k-mark.svg", "from": "src/renderer/src/assets/logo/hx3k-mark.svg" },
+  { "group": "Logos", "name": "app-icon.svg", "from": "build/icon.svg" },
+  { "group": "Logos", "name": "app-icon.png", "from": "build/icon.png" },
+  { "group": "TONE3000", "name": "tone3000-logo.svg", "from": "src/renderer/src/assets/brand/tone3000-logo.svg" },
+  { "group": "TONE3000", "name": "t3k-mark.svg", "from": "src/renderer/src/assets/brand/t3k-mark.svg" }
+]

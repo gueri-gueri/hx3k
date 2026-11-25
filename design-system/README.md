@@ -20,6 +20,7 @@ Nothing here is used by the app or packaged with it.
 | `stories/_sample.jsx`, `stories/_shell.jsx` | Shared by the screens: the sample mode's made-up tones (as `src/main/mock.ts`), and the app's shell. |
 | `docs/<Name>.md` | A card's guidelines. Its first sentence is the card's summary. |
 | `content/` | Published as it is: the system's `README.md`, the five sections of the brand book, the note of each asset group. |
+| `assets.json` | The logo files: where each one is in the repository, and the group and name it has in the design system. |
 | `cover.mjs` | The cover. |
 | `build.mjs` | Builds all of it into `dist/project/`. |
 | `check.mjs` | Renders the built cards and says what is wrong with them. |
@@ -35,8 +36,8 @@ npm install
 npm run build
 ```
 
-`dist/project/` then holds 73 files, each at the path it has in the design system. `npm run build -- Button` rebuilds
-one card.
+`dist/project/` then holds 73 files, each at the path it has in the design system, and `dist/uploads/` the six logo
+files, named as the design system names them. `npm run build -- Button` rebuilds one card.
 
 ## Checking
 
@@ -83,12 +84,32 @@ CSS, sync first, then check.
 From a Claude Code session, ask for `design-system/dist` to be published to the HX3K design system. Each file goes
 at its path under `project/`; a `preview.html` is sent as `text/plain`, like the synced ones.
 
-Two things are not built here and stay in the artifact:
+The index, `project/design-system.json`, is not built here and stays in the artifact. It is read from the artifact
+right before publishing, and only its `lastChange` is set (and a logo's record, when one is uploaded again).
 
-- Its index, `project/design-system.json`. It is read from the artifact right before publishing, and only its
-  `lastChange` is set (and an asset's record, when a logo changes).
-- The logo files, which are uploads. Their sources are `src/renderer/src/assets/logo/`, `src/renderer/src/assets/brand/`
-  and `build/icon.*`.
+### The logos
+
+A picture is not published as a file. Anything under `assets/` that is not text is an upload, kept in the artifact's
+own store, and the index says which upload is which file. That is why `content/assets/` holds only the note of each
+group: the pictures stay where the app uses them, with no second copy to keep in step. `assets.json` says which is
+which, and the build copies them to `dist/uploads/` under the names they have in the design system:
+
+| In the design system | In the repository |
+|---|---|
+| `Logos/hx3k-logo.svg` | `src/renderer/src/assets/logo/hx3k-logo.svg` |
+| `Logos/hx3k-mark.svg` | `src/renderer/src/assets/logo/hx3k-mark.svg` |
+| `Logos/app-icon.svg` | `build/icon.svg` |
+| `Logos/app-icon.png` | `build/icon.png` |
+| `TONE3000/tone3000-logo.svg` | `src/renderer/src/assets/brand/tone3000-logo.svg` |
+| `TONE3000/t3k-mark.svg` | `src/renderer/src/assets/brand/t3k-mark.svg` |
+
+Upload one again only when its source changed: send the file from `dist/uploads/`, then write the id the upload
+answers with into the index, at `assetGroups.<Group>.files.<name>.blob`, with its size and type. The store rewrites
+an SVG's markup as it takes it in (comments go, tags are spelled out), so the stored file is not the source byte
+for byte. It draws the same.
+
+The build fails if a file of `assets.json` is missing from this table or from its group's note, or if a note tells
+of a file that `assets.json` does not list.
 
 ## What `/design-sync` also writes
 

@@ -2,6 +2,7 @@
 // the tokens, the fonts, the brand book, the cover, and one card per entry of
 // cards.json (stories/<Name>.jsx compiled into components/<Name>/preview.html,
 // docs/<Name>.md plus the stories' own source into components/<Name>/README.md).
+// The logo files of assets.json are gathered beside it, in dist/uploads/.
 //
 //   node build.mjs            everything
 //   node build.mjs Button     only these cards, into the dist/ already there
@@ -15,7 +16,9 @@ import { tokens, writeTokens } from './tokens.mjs'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(HERE, '..')
 const OUT = path.join(HERE, 'dist', 'project')
+const UPLOADS = path.join(HERE, 'dist', 'uploads')
 const cards = JSON.parse(fs.readFileSync(path.join(HERE, 'cards.json'), 'utf8'))
+const assets = JSON.parse(fs.readFileSync(path.join(HERE, 'assets.json'), 'utf8'))
 const only = process.argv.slice(2)
 
 // What every stories file may use without importing: the bundle's components and React's hooks.
@@ -99,6 +102,43 @@ function copyFonts() {
   }
 }
 
+/**
+ * The logos, copied from where the app keeps them and named as the design
+ * system names them. A picture under assets/ is an upload the index points at,
+ * not a file of project/, so they are gathered apart, for whoever publishes.
+ * Every one must be told of in its group's note and in this folder's README,
+ * and neither may tell of one that is not here.
+ */
+function copyUploads() {
+  const readme = fs.readFileSync(path.join(HERE, 'README.md'), 'utf8')
+  const groups = [...new Set(assets.map((a) => a.group))]
+  const notes = Object.fromEntries(
+    groups.map((group) => {
+      const file = path.join(HERE, 'content', 'assets', group, 'README.md')
+      if (!fs.existsSync(file)) throw new Error(`content/assets/${group}/README.md is missing: the group's note says what each of its files is for`)
+      return [group, fs.readFileSync(file, 'utf8')]
+    }),
+  )
+  for (const group of groups) {
+    const here = assets.filter((a) => a.group === group).map((a) => a.name)
+    for (const [, named] of notes[group].matchAll(/`([\w.-]+\.(?:svg|png|jpe?g|webp|gif|pdf))`/gi)) {
+      if (!here.includes(named)) throw new Error(`content/assets/${group}/README.md tells of ${named}, which assets.json does not list`)
+    }
+  }
+  fs.rmSync(UPLOADS, { recursive: true, force: true })
+  for (const asset of assets) {
+    const from = path.join(ROOT, asset.from)
+    if (!fs.existsSync(from)) throw new Error(`${asset.from} is gone: assets.json gives it as the source of ${asset.group}/${asset.name}`)
+    if (!notes[asset.group].includes('`' + asset.name + '`')) throw new Error(`content/assets/${asset.group}/README.md does not say what ${asset.name} is for`)
+    if (!readme.includes('`' + asset.group + '/' + asset.name + '`') || !readme.includes('`' + asset.from + '`')) {
+      throw new Error(`README.md does not list ${asset.group}/${asset.name} with its source, ${asset.from}`)
+    }
+    fs.mkdirSync(path.join(UPLOADS, asset.group), { recursive: true })
+    fs.copyFileSync(from, path.join(UPLOADS, asset.group, asset.name))
+  }
+  return assets.length
+}
+
 /** content/ is published as it is: the README, the brand book's sections, the notes of each asset group. */
 function copyContent(from = path.join(HERE, 'content'), to = OUT) {
   let n = 0
@@ -170,10 +210,11 @@ if (only.length) {
   copyFonts()
   console.log('tokens  ', writeTokens(OUT))
   console.log('content ', copyContent(), 'files')
+  console.log('uploads ', copyUploads(), 'logo files')
   let stories = 0
   for (const card of cards) stories += await buildCard(card)
   console.log('cards   ', cards.length, 'with', stories, 'stories')
   writeCover(OUT)
   console.log('cover    components/Cover/preview.html')
-  console.log('written to', path.relative(ROOT, OUT))
+  console.log('written to', path.relative(ROOT, OUT), 'and', path.relative(ROOT, UPLOADS))
 }
