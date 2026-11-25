@@ -1,0 +1,214 @@
+[
+ {
+  "name": "Button",
+  "group": "Actions",
+  "mode": "column",
+  "subtitle": "Primary, accent, outline, quiet, danger \u00b7 3 sizes",
+  "height": 715
+ },
+ {
+  "name": "Sidebar",
+  "group": "Navigation",
+  "mode": "column",
+  "width": 900,
+  "subtitle": "The menu: logo, entries, count, footer",
+  "height": 629
+ },
+ {
+  "name": "Tabs",
+  "group": "Navigation",
+  "mode": "column",
+  "subtitle": "Two groups and a trailing action",
+  "height": 171
+ },
+ {
+  "name": "Pager",
+  "group": "Navigation",
+  "mode": "grid",
+  "height": 159
+ },
+ {
+  "name": "Chip",
+  "group": "Data display",
+  "mode": "column",
+  "subtitle": "Fill, line, ready, off",
+  "height": 548
+ },
+ {
+  "name": "ToneCard",
+  "group": "Data display",
+  "mode": "column",
+  "width": 900,
+  "subtitle": "Tone, dimmed, no picture, more, loading",
+  "height": 1514
+ },
+ {
+  "name": "Rows",
+  "group": "Data display",
+  "mode": "column",
+  "width": 900,
+  "subtitle": "Models, converted captures, local results",
+  "height": 1321
+ },
+ {
+  "name": "EmptyState",
+  "group": "Feedback",
+  "mode": "column",
+  "height": 681
+ },
+ {
+  "name": "Toast",
+  "group": "Feedback",
+  "mode": "column",
+  "subtitle": "Ok and error",
+  "height": 279
+ },
+ {
+  "name": "Banner",
+  "group": "Feedback",
+  "mode": "column",
+  "width": 900,
+  "height": 159
+ },
+ {
+  "name": "Skeleton",
+  "group": "Feedback",
+  "mode": "column",
+  "height": 544
+ },
+ {
+  "name": "Field",
+  "group": "Forms",
+  "mode": "grid",
+  "subtitle": "Label, input, action, error",
+  "height": 238
+ },
+ {
+  "name": "Select",
+  "group": "Forms",
+  "mode": "column",
+  "height": 167
+ },
+ {
+  "name": "Segmented",
+  "group": "Forms",
+  "mode": "column",
+  "height": 163
+ },
+ {
+  "name": "SettingsCard",
+  "group": "Forms",
+  "mode": "column",
+  "width": 820,
+  "subtitle": "Card of setting rows",
+  "height": 1256
+ },
+ {
+  "name": "Dropzone",
+  "group": "Forms",
+  "mode": "grid",
+  "subtitle": "Idle, drag over, busy",
+  "height": 570
+ },
+ {
+  "name": "PageHead",
+  "group": "Layout",
+  "mode": "column",
+  "width": 900,
+  "subtitle": "Screen title, section heads",
+  "height": 746
+ },
+ {
+  "name": "Steps",
+  "group": "Layout",
+  "mode": "column",
+  "height": 485
+ },
+ {
+  "name": "ScreenTones",
+  "group": "Screens",
+  "mode": "single",
+  "surface": false,
+  "page": true,
+  "width": 1240,
+  "height": 980,
+  "subtitle": "The shell and the tone lists"
+ },
+ {
+  "name": "ScreenTone",
+  "group": "Screens",
+  "mode": "single",
+  "surface": false,
+  "page": true,
+  "width": 1240,
+  "height": 840,
+  "subtitle": "One tone and its models"
+ },
+ {
+  "name": "ScreenConverted",
+  "group": "Screens",
+  "mode": "single",
+  "surface": false,
+  "page": true,
+  "width": 620,
+  "height": 800,
+  "subtitle": "The menu as a rail (720px and under)"
+ },
+ {
+  "name": "ScreenLocalFiles",
+  "group": "Screens",
+  "mode": "single",
+  "surface": false,
+  "page": true,
+  "width": 1240,
+  "height": 760
+ },
+ {
+  "name": "ScreenGuide",
+  "group": "Screens",
+  "mode": "single",
+  "surface": false,
+  "page": true,
+  "width": 1240,
+  "height": 860
+ },
+ {
+  "name": "ScreenSettings",
+  "group": "Screens",
+  "mode": "single",
+  "surface": false,
+  "page": true,
+  "width": 1240,
+  "height": 1180
+ },
+ {
+  "name": "ScreenSplash",
+  "group": "Screens",
+  "mode": "single",
+  "surface": false,
+  "page": true,
+  "width": 1240,
+  "height": 640,
+  "subtitle": "Before sign-in"
+ },
+ {
+  "name": "ScreenSetup",
+  "group": "Screens",
+  "mode": "single",
+  "surface": false,
+  "page": true,
+  "width": 1240,
+  "height": 720,
+  "subtitle": "First run: the publishable key"
+ },
+ {
+  "name": "ScreenTone3000",
+  "group": "Screens",
+  "mode": "single",
+  "surface": false,
+  "page": true,
+  "width": 1240,
+  "height": 480,
+  "subtitle": "The stage TONE3000's pages are laid over"
+ }
+]

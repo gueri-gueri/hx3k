@@ -1,0 +1,14 @@
+{
+  "name": "hx3k-design-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Builds the hand-authored part of the HX3K design system: tokens, brand book, cover, and the pattern and screen cards.",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node check.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.0"
+  }
+}
