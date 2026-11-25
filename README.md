@@ -84,15 +84,15 @@ with no key and no network. It only works outside the packaged app.
 
 ### Releasing
 
-Set the new `version` in `package.json`, commit it, then push a tag with the same number and a `v`:
+Start [`release.yml`](.github/workflows/release.yml) by hand from the Actions tab (*Release → Run workflow*) and
+choose `patch`, `minor` or `major`. It always releases `main`, and the new version is the last `vX.Y.Z` tag with
+that part raised (`v0.1.0` → `v0.1.1`, `v0.2.0` or `v1.0.0`). Don't edit the version in `package.json` or push tags
+yourself.
 
-```bash
-git tag v0.1.0 && git push origin v0.1.0
-```
-
-[`release.yml`](.github/workflows/release.yml) runs the tests, packages the app on macOS, Windows and Linux, and
-opens a **draft** release with the installers. Publish it from the repository's Releases page. Started by hand from
-the Actions tab, the workflow only packages: the installers stay in the run's artifacts.
+The workflow runs the tests and packages the app on macOS, Windows and Linux. Then it commits the new version to
+`package.json` on `main`, tags that commit and opens a **draft** release with the installers. Publish it from the
+repository's Releases page. If `main` gets a new commit while it runs, the push is refused and nothing is tagged:
+start it again.
 
 The release opens with the install instructions of [`release-notes.md`](.github/release-notes.md), where
 `{{version}}` and `{{repo}}` are filled in, followed by GitHub's list of changes.

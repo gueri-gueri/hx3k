@@ -1,42 +1,81 @@
 name: Release
 
-# Push a tag like v0.1.0 (the version in package.json, with a "v") and this
-# packages the app on the three systems and opens a draft release with the
-# installers. Run by hand, it only packages: the files stay in the run's
-# artifacts and no release is made.
+# Started by hand from the Actions tab, always on main. Choose which part of the
+# version goes up: the new version is the last vX.Y.Z tag with that part raised
+# (v0.1.0 → patch v0.1.1, minor v0.2.0, major v1.0.0). This tests and packages
+# main on the three systems, then commits the version to package.json, tags the
+# commit, pushes both to main and opens a draft release with the installers.
 on:
-  push:
-    tags: ['v*']
   workflow_dispatch:
+    inputs:
+      bump:
+        description: Part of the version to raise
+        type: choice
+        required: true
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
 
 permissions:
   contents: read
 
+# One release at a time: two would compute the same version.
 concurrency:
-  group: release-${{ github.ref }}
+  group: release
   cancel-in-progress: false
 
 jobs:
+  version:
+    name: Compute the version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.next.outputs.version }}
+      sha: ${{ steps.next.outputs.sha }}
+    steps:
+      # The whole history, for the tags. Every later job builds this same commit.
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Raise the last version
+        id: next
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          last="$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)"
+          last="${last:-v0.0.0}"
+          IFS=. read -r major minor patch <<< "${last#v}"
+          case "$BUMP" in
+            major) major=$((major + 1)); minor=0; patch=0 ;;
+            minor) minor=$((minor + 1)); patch=0 ;;
+            patch) patch=$((patch + 1)) ;;
+            *) echo "::error::Unknown bump: $BUMP"; exit 1 ;;
+          esac
+          version="$major.$minor.$patch"
+          if git rev-parse -q --verify "refs/tags/v$version" > /dev/null; then
+            echo "::error::The tag v$version already exists."
+            exit 1
+          fi
+          echo "::notice::$last → v$version ($BUMP)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
   test:
     name: Typecheck and test
+    needs: version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.version.outputs.sha }}
 
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
-
-      # electron-builder names the files after package.json, not after the tag.
-      - name: Check that the tag is the version in package.json
-        if: github.ref_type == 'tag'
-        run: |
-          version="v$(node -p "require('./package.json').version")"
-          if [ "$version" != "$GITHUB_REF_NAME" ]; then
-            echo "::error::The tag is $GITHUB_REF_NAME, but package.json says $version."
-            exit 1
-          fi
 
       - run: npm ci
       - run: npm run typecheck
@@ -44,7 +83,7 @@ jobs:
 
   package:
     name: Package (${{ matrix.name }})
-    needs: test
+    needs: [version, test]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -58,6 +97,8 @@ jobs:
             os: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.version.outputs.sha }}
 
       - uses: actions/setup-node@v7
         with:
@@ -66,8 +107,13 @@ jobs:
 
       - run: npm ci
 
-      # "--publish never": on a tag, electron-builder would otherwise try to
-      # upload by itself. The release job below does that, once, for all three.
+      # electron-builder names the files after package.json. The release job
+      # commits the same change once the three packages are built.
+      - name: Set the version in package.json
+        run: npm version ${{ needs.version.outputs.version }} --no-git-tag-version --allow-same-version
+
+      # "--publish never": electron-builder would otherwise try to upload by
+      # itself. The release job below does that, once, for all three.
       - name: Build and package
         run: npm run dist -- --publish never
         env:
@@ -92,15 +138,37 @@ jobs:
           retention-days: 14
 
   release:
-    name: Draft the release
-    if: github.ref_type == 'tag'
-    needs: package
+    name: Tag and draft the release
+    needs: [version, package]
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      TAG: v${{ needs.version.outputs.version }}
     steps:
       # For .github/release-notes.md. It comes first: checkout empties the folder.
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.version.outputs.sha }}
+
+      # One commit with the new version, tagged, pushed to main together with
+      # the tag. If main moved on during the run, the push is refused and
+      # nothing is tagged: start the release again. On a re-run of this job
+      # after the push went through, the tag is already there and this is skipped.
+      - name: Commit the version and push it with the tag
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" > /dev/null; then
+            echo "::notice::$TAG is already on the remote."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+          git add package.json package-lock.json
+          git commit -m "Release $TAG"
+          git tag "$TAG"
+          git push --atomic origin HEAD:refs/heads/main "refs/tags/$TAG"
 
       - uses: actions/download-artifact@v8
         with:
@@ -116,13 +184,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" artifacts/* --clobber
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" artifacts/* --clobber
           else
-            sed -e "s|{{version}}|${GITHUB_REF_NAME#v}|g" -e "s|{{repo}}|$GITHUB_REPOSITORY|g" \
+            sed -e "s|{{version}}|$VERSION|g" -e "s|{{repo}}|$GITHUB_REPOSITORY|g" \
               .github/release-notes.md > "$RUNNER_TEMP/release-notes.md"
-            gh release create "$GITHUB_REF_NAME" artifacts/* \
-              --title "HX3K ${GITHUB_REF_NAME#v}" \
+            gh release create "$TAG" artifacts/* \
+              --title "HX3K $VERSION" \
               --notes-file "$RUNNER_TEMP/release-notes.md" \
               --generate-notes \
               --verify-tag \
