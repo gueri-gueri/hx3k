@@ -8,7 +8,7 @@ import { existsSync } from 'node:fs'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { basename, dirname, join } from 'node:path'
 import { numbered, wavFileName } from '@shared/names'
-import type { ConversionInfo, ConversionRecord, Size, ToneRef } from '@shared/types'
+import type { ConversionInfo, ConversionRecord, DevicePlace, Size, ToneRef } from '@shared/types'
 import { AppError } from './errors'
 import { readJson, writeJson } from './jsonFile'
 import { getSettings } from './settings'
@@ -83,6 +83,8 @@ export async function saveConversion(c: NewConversion): Promise<ConversionRecord
     info: c.info,
     tone: c.tone,
     model: c.model,
+    // Converted again, it is still the capture that was sent to that slot.
+    device: earlier?.device,
   }
   save([record, ...records().filter((r) => r.id !== record.id)])
   await writeCredits(dir)
@@ -107,6 +109,15 @@ export async function removeConversion(id: string): Promise<ConversionRecord[]> 
 
 export function findConversion(id: string): ConversionRecord | undefined {
   return records().find((r) => r.id === id)
+}
+
+/** Notes where on the HX Stomp a capture was put. */
+export function setDevicePlace(id: string, device: DevicePlace): ConversionRecord {
+  const record = findConversion(id)
+  if (!record) throw new AppError('not_found', 'This conversion is no longer listed.')
+  const next: ConversionRecord = { ...record, device }
+  save(records().map((r) => (r.id === id ? next : r)))
+  return { ...next, missing: !existsSync(next.filePath) }
 }
 
 /** The text of the credits file for the TONE3000 captures among `list`. */

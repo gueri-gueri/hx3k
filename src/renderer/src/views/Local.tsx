@@ -2,6 +2,7 @@ import { type DragEvent, type ReactNode, useRef, useState } from 'react'
 import type { LocalNam, LocalOutcome } from '@shared/types'
 import { call, hx } from '../api'
 import { Icon } from '../components/Icon'
+import { SlotStatus, sendAfterConvert } from '../components/Send'
 import { Notice, Spinner } from '../components/ui'
 import { SCREEN_TITLE_ID, useApp, useScreenTitle } from '../context'
 import { convertErrorText } from '../i18n'
@@ -9,7 +10,7 @@ import { infoChips } from './Converted'
 
 /** Converts .nam files the user already has. Nothing is sent anywhere. */
 export function LocalView(): ReactNode {
-  const { t, fail, reloadLibrary, announce } = useApp()
+  const { t, fail, reloadLibrary, announce, notify, state } = useApp()
   useScreenTitle(t('local.title'))
   const input = useRef<HTMLInputElement>(null)
   const [over, setOver] = useState(false)
@@ -31,6 +32,10 @@ export function LocalView(): ReactNode {
         }
       }
       const done = read.length ? await call(hx.convertLocal(read)) : []
+      if (state.settings.sendAfterConvert) {
+        // One after another: the unit takes one capture at a time.
+        for (const o of done) if (o.ok) o.record = await sendAfterConvert(o.record, { t, notify, fail })
+      }
       setOutcomes((earlier) => [...done, ...unread, ...earlier])
       const batch = [...done, ...unread]
       announce(t('local.results', { good: batch.filter((o) => o.ok).length, n: batch.length }))
@@ -109,6 +114,7 @@ export function LocalView(): ReactNode {
                         <Icon name="check" />
                         <span className="selectable">{t('tone.saved', { file: o.record.fileName })}</span>
                       </div>
+                      <SlotStatus record={o.record} />
                       <div className="chips">
                         {infoChips(o.record.info, t).map((text) => (
                           <span key={text} className="chip chip-line chip-off">

@@ -80,6 +80,8 @@ export interface Settings {
   includeLevel: boolean
   /** Carry the capture's loudness, so captures play at about the same volume. */
   includeLoudness: boolean
+  /** Send each capture to the HX Stomp as soon as it is converted, when one is connected. */
+  sendAfterConvert: boolean
 }
 
 /** What the converter says about a capture (vendor/hxtra/nam2ir-core.js `info`). */
@@ -107,6 +109,15 @@ export interface ToneRef {
   creator: { username: string; displayName: string | null; avatarUrl: string | null; url: string }
 }
 
+/** Where a capture was put on the HX Stomp, the last time it was sent. */
+export interface DevicePlace {
+  /** The User IR slot, 1 to 128: the number the NAM A2 Lite block's Model knob takes. */
+  slot: number
+  /** The MD5 of the samples sent, as the unit lists it. */
+  hash: string
+  sentAt: string
+}
+
 export interface ConversionRecord {
   id: string
   createdAt: string
@@ -119,8 +130,16 @@ export interface ConversionRecord {
   info: ConversionInfo
   tone?: ToneRef
   model?: { id: number; name: string; size: Size }
+  device?: DevicePlace
   /** The .wav is no longer where it was written. */
   missing?: boolean
+}
+
+export interface SendOutcome {
+  record: ConversionRecord
+  slot: number
+  /** The unit already held this capture in that slot: nothing was written. */
+  already: boolean
 }
 
 export interface AppState {
@@ -171,6 +190,15 @@ export type ErrorCode =
   | 'not_convertible'
   | 'write_failed'
   | 'invalid'
+  /** No HX Stomp is connected by USB. */
+  | 'device_not_found'
+  /** Another program holds the HX Stomp. */
+  | 'device_busy'
+  /** This system keeps the HX Stomp to its own driver. */
+  | 'device_unsupported'
+  /** Every User IR slot is taken. */
+  | 'device_full'
+  | 'device_failed'
   | 'unknown'
 
 export type Result<T> = { ok: true; data: T } | { ok: false; code: ErrorCode; message: string }

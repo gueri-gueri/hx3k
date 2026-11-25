@@ -43,6 +43,8 @@ export function errorText(err: unknown, t: T): string {
     if (err.code === 'not_convertible') return convertErrorText(err.message, t)
     if (err.code === 'invalid' && /secret key/i.test(err.message)) return t('err.secretKey')
     if (err.code === 'invalid' && /t3k_pub_/.test(err.message)) return t('err.badKey')
+    // What the unit or the USB layer said goes with it: it tells which step failed.
+    if (err.code === 'device_failed') return `${t('err.device_failed')} ${err.message}`
     return t(`err.${err.code}` as Key)
   }
   return t('err.unknown')

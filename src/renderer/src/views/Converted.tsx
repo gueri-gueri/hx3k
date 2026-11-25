@@ -3,6 +3,7 @@ import type { ConversionInfo, ConversionRecord } from '@shared/types'
 import { call, hx } from '../api'
 import { T3KMark } from '../components/Brand'
 import { Icon } from '../components/Icon'
+import { SendButton, SlotStatus } from '../components/Send'
 import { Avatar, BrowseButton, Notice, ToneImage } from '../components/ui'
 import { SCREEN_TITLE_ID, useApp, useScreenTitle } from '../context'
 import type { T } from '../i18n'
@@ -149,6 +150,7 @@ function ConvertedRow({ record }: { record: ConversionRecord }): ReactNode {
         </div>
 
         <div className="row-sub mono selectable">{record.fileName}</div>
+        <SlotStatus record={record} />
         {record.missing && (
           <div className="row-status row-warn">
             <Icon name="alert" />
@@ -170,6 +172,7 @@ function ConvertedRow({ record }: { record: ConversionRecord }): ReactNode {
           </>
         ) : (
           <>
+            {!record.missing && <SendButton record={record} />}
             {!record.missing && (
               <button type="button" className="btn btn-outline btn-sm" onClick={() => void hx.reveal(record.id)}>
                 <Icon name="folder" />

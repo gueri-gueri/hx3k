@@ -4,9 +4,9 @@ import { Icon } from '../components/Icon'
 import { ExternalLink, Notice } from '../components/ui'
 import { SCREEN_TITLE_ID, useApp, useScreenTitle } from '../context'
 
-/** Getting a converted capture onto the unit: step 7 of HXtra's setup page. */
+/** Getting a converted capture onto the unit: from the app, or by hand as step 7 of HXtra's setup page has it. */
 export function GuideView(): ReactNode {
-  const { t, state } = useApp()
+  const { t, state, go } = useApp()
   useScreenTitle(t('guide.title'))
   return (
     <div className="page page-narrow">
@@ -27,16 +27,14 @@ export function GuideView(): ReactNode {
       </div>
 
       <ol className="steps steps-lg">
-        <li>{t('guide.li1')}</li>
+        <li>{t('guide.s1')}</li>
         <li>
           <div>
-            {t('guide.li2')}
+            {t('guide.s2')}
             <div className="actions step-actions">
-              <button type="button" className="btn btn-outline btn-sm" onClick={() => void hx.openOutputDir()}>
-                <Icon name="folder" />
-                {t('common.openFolder')}
+              <button type="button" className="btn btn-outline btn-sm" onClick={() => go({ name: 'converted' })}>
+                {t('nav.converted')}
               </button>
-              <span className="mono muted selectable">{state.settings.outputDir}</span>
             </div>
           </div>
         </li>
@@ -45,6 +43,26 @@ export function GuideView(): ReactNode {
       </ol>
 
       <Notice>{t('conv.tip')}</Notice>
+
+      <section className="section">
+        <h2>{t('guide.manual')}</h2>
+        <p className="muted">{t('guide.manual.lead')}</p>
+        <ol className="steps steps-lg">
+          <li>{t('guide.li1')}</li>
+          <li>
+            <div>
+              {t('guide.li2')}
+              <div className="actions step-actions">
+                <button type="button" className="btn btn-outline btn-sm" onClick={() => void hx.openOutputDir()}>
+                  <Icon name="folder" />
+                  {t('common.openFolder')}
+                </button>
+                <span className="mono muted selectable">{state.settings.outputDir}</span>
+              </div>
+            </div>
+          </li>
+        </ol>
+      </section>
 
       <section className="section">
         <h2>{t('guide.notes')}</h2>

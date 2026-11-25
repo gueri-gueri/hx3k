@@ -3,6 +3,7 @@ import { modelFit } from '@shared/compat'
 import type { ConversionRecord, Model, Tone } from '@shared/types'
 import { call, hx } from '../api'
 import { Icon } from '../components/Icon'
+import { SendButton, SlotStatus, sendAfterConvert } from '../components/Send'
 import { BrowseButton, Creator, Notice, Spinner, ToneImage } from '../components/ui'
 import { SCREEN_TITLE_ID, useApp, useScreenTitle } from '../context'
 import { errorText } from '../i18n'
@@ -12,7 +13,7 @@ type RowState = { status: 'idle' } | { status: 'working' } | { status: 'done'; r
 
 /** One tone: picture, title, gear, format, creator, description and its models. */
 export function ToneDetail({ id }: { id: number }): ReactNode {
-  const { t, go, open, fail, library, reloadLibrary, notify, announce } = useApp()
+  const { t, go, open, fail, library, reloadLibrary, notify, announce, state } = useApp()
   const [tone, setTone] = useState<Tone | null>(null)
   const [models, setModels] = useState<Model[] | null>(null)
   const [error, setError] = useState('')
@@ -54,10 +55,11 @@ export function ToneDetail({ id }: { id: number }): ReactNode {
   const convert = async (model: Model): Promise<boolean> => {
     setRows((r) => ({ ...r, [model.id]: { status: 'working' } }))
     try {
-      const record = await call(hx.convertModel(id, model.id))
-      setRows((r) => ({ ...r, [model.id]: { status: 'done', record } }))
+      const converted = await call(hx.convertModel(id, model.id))
       // The row shows it; this says it to someone who cannot see the row.
-      announce(t('tone.saved', { file: record.fileName }))
+      announce(t('tone.saved', { file: converted.fileName }))
+      const record = state.settings.sendAfterConvert ? await sendAfterConvert(converted, { t, notify, fail }) : converted
+      setRows((r) => ({ ...r, [model.id]: { status: 'done', record } }))
       return true
     } catch (err) {
       setRows((r) => ({ ...r, [model.id]: { status: 'error', text: errorText(err, t) } }))
@@ -201,7 +203,14 @@ export function ToneDetail({ id }: { id: number }): ReactNode {
         ) : (
           <div className="rows">
             {models.map((model) => (
-              <ModelRow key={model.id} model={model} row={rowOf(model)} disabled={busy} onConvert={() => void convertOne(model)} />
+              <ModelRow
+                key={model.id}
+                model={model}
+                row={rowOf(model)}
+                disabled={busy}
+                onConvert={() => void convertOne(model)}
+                onSent={(record) => setRows((r) => ({ ...r, [model.id]: { status: 'done', record } }))}
+              />
             ))}
           </div>
         )}
@@ -210,7 +219,19 @@ export function ToneDetail({ id }: { id: number }): ReactNode {
   )
 }
 
-function ModelRow({ model, row, disabled, onConvert }: { model: Model; row: RowState; disabled: boolean; onConvert(): void }): ReactNode {
+function ModelRow({
+  model,
+  row,
+  disabled,
+  onConvert,
+  onSent,
+}: {
+  model: Model
+  row: RowState
+  disabled: boolean
+  onConvert(): void
+  onSent(record: ConversionRecord): void
+}): ReactNode {
   const { t } = useApp()
   const fit = modelFit(model)
   const size = t('size.a2', { size: sizeLabel(model.size) })
@@ -231,6 +252,7 @@ function ModelRow({ model, row, disabled, onConvert }: { model: Model; row: RowS
             <span className="selectable">{t('tone.saved', { file: row.record.fileName })}</span>
           </div>
         )}
+        {row.status === 'done' && <SlotStatus record={row.record} />}
         {row.status === 'error' && (
           <div className="row-status row-bad" role="alert">
             <Icon name="alert" />
@@ -246,6 +268,7 @@ function ModelRow({ model, row, disabled, onConvert }: { model: Model; row: RowS
             {t('common.showInFolder')}
           </button>
         )}
+        {row.status === 'done' && <SendButton record={row.record} onSent={onSent} disabled={disabled} />}
         {row.status === 'working' ? (
           <button type="button" className="btn btn-outline btn-sm" disabled>
             <Spinner />
@@ -254,7 +277,7 @@ function ModelRow({ model, row, disabled, onConvert }: { model: Model; row: RowS
         ) : (
           <button
             type="button"
-            className={fit === 'ready' && row.status !== 'done' ? 'btn btn-accent btn-sm' : 'btn btn-outline btn-sm'}
+            className={fit === 'ready' && row.status !== 'done' ? 'btn btn-accent btn-sm' : 'btn btn-quiet btn-sm'}
             disabled={disabled}
             onClick={onConvert}
           >

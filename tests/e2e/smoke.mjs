@@ -275,6 +275,16 @@ try {
   assert.equal(await page.locator('.thumb-mark img[alt="TONE3000"]').count(), 4)
   await shot('converted')
 
+  // Sending one to the HX Stomp (the sample unit, empty at first) puts it in slot 1
+  // and says so on its row; sent again, it is found where it is.
+  const send = page.getByRole('button', { name: 'Send to HX Stomp: My own amp NAM.wav' })
+  await send.click()
+  await page.getByText('Sent to the HX Stomp: slot 1. Set the NAM A2 Lite block’s Model to 1.').waitFor()
+  await page.locator('.row', { hasText: 'My own amp NAM.wav' }).getByText('Sent to the HX Stomp: slot 1', { exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Send again: My own amp NAM.wav' }).click()
+  await page.getByText('The HX Stomp already has this capture in slot 1.').waitFor()
+  await shot('converted-sent')
+
   // Removing asks first, with the keyboard on "Cancel"; saying no returns it to "Remove".
   const remove = page.getByRole('button', { name: 'Remove: Plexi Lead 100 - All sizes NAM.wav' })
   await remove.click()

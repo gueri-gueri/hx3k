@@ -54,6 +54,7 @@ const bridge: Bridge = {
 
   library: () => ipcRenderer.invoke(IPC.library),
   removeConversion: (id) => ipcRenderer.invoke(IPC.libraryRemove, id),
+  sendToDevice: (id) => ipcRenderer.invoke(IPC.deviceSend, id),
   reveal: (id) => ipcRenderer.invoke(IPC.reveal, id),
   openOutputDir: () => ipcRenderer.invoke(IPC.openOutputDir),
   openExternal: (url) => ipcRenderer.invoke(IPC.openExternal, url),

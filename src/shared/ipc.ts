@@ -7,6 +7,7 @@ import type {
   LocalOutcome,
   Model,
   Result,
+  SendOutcome,
   Settings,
   Tone,
   ToneListKind,
@@ -32,6 +33,7 @@ export const IPC = {
   convertLocal: 'convert:local',
   library: 'library:list',
   libraryRemove: 'library:remove',
+  deviceSend: 'device:send',
   reveal: 'shell:reveal',
   openOutputDir: 'shell:open-output-dir',
   openExternal: 'shell:open-external',
@@ -72,6 +74,8 @@ export interface Bridge {
   library(): Promise<Result<ConversionRecord[]>>
   /** Forgets a conversion and moves its .wav, if still there, to the system trash. */
   removeConversion(id: string): Promise<Result<ConversionRecord[]>>
+  /** Puts a converted capture in a User IR slot of the HX Stomp connected by USB. */
+  sendToDevice(id: string): Promise<Result<SendOutcome>>
   reveal(id: string): Promise<Result<null>>
   openOutputDir(): Promise<Result<null>>
   /** Opens an https link in the system browser. */

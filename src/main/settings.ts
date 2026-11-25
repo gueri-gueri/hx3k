@@ -18,6 +18,7 @@ function defaults(): Settings {
     theme: 'dark',
     includeLevel: true,
     includeLoudness: true,
+    sendAfterConvert: false,
   }
 }
 
@@ -34,6 +35,7 @@ export function getSettings(): Settings {
       theme: THEMES.includes(saved.theme as Theme) ? (saved.theme as Theme) : base.theme,
       includeLevel: typeof saved.includeLevel === 'boolean' ? saved.includeLevel : base.includeLevel,
       includeLoudness: typeof saved.includeLoudness === 'boolean' ? saved.includeLoudness : base.includeLoudness,
+      sendAfterConvert: typeof saved.sendAfterConvert === 'boolean' ? saved.sendAfterConvert : base.sendAfterConvert,
     }
   }
   return cached
@@ -71,6 +73,7 @@ export function updateSettings(patch: Partial<Settings>): Settings {
   }
   if (patch.includeLevel !== undefined) next.includeLevel = Boolean(patch.includeLevel)
   if (patch.includeLoudness !== undefined) next.includeLoudness = Boolean(patch.includeLoudness)
+  if (patch.sendAfterConvert !== undefined) next.sendAfterConvert = Boolean(patch.sendAfterConvert)
   cached = next
   writeJson(file(), next)
   return next

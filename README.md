@@ -16,6 +16,10 @@ app, and it comes back ready for the HX Stomp.
 - **Your tones**: favorites, downloaded and created, plus trending and recent.
 - **Convert**: downloads the model you chose and writes `<name> NAM.wav` to the output folder.
 - **Local files**: converts `.nam` files you already have, with no account and no network.
+- **Send to HX Stomp**: puts a converted capture in a free User IR slot of the HX Stomp connected by USB and tells
+  you the slot's number, so HX Edit is not needed. Settings can have it done as soon as a capture is converted.
+  macOS and Linux (not tried on Linux, where the user needs access to the USB device); on Windows Line 6's driver
+  keeps the unit to itself, and the `.wav` goes in with HX Edit.
 - **Credits**: writes `TONE3000 credits.txt` beside the `.wav` files, with the creator, license and link of each
   capture.
 - Interface in Portuguese and English, dark and light themes.
@@ -111,7 +115,8 @@ on first launch, and Windows shows SmartScreen's *More info → Run anyway*.
 | `src/main/t3k.ts` | API client: lists, tone, models, download; token refresh |
 | `src/main/convert.ts` | Calls HXtra's converter |
 | `src/main/library.ts` | Writes the `.wav` files, the history and the credits file |
-| `src/main/hx/` | The HX Stomp's USB protocol, as HX Edit speaks it: reads presets and User IRs, writes a User IR slot; not yet used by the app |
+| `src/main/hx/` | The HX Stomp's USB protocol, as HX Edit speaks it: reads presets and User IRs, writes a User IR slot |
+| `src/main/device.ts` | Sends a converted capture to the unit: picks the slot, never one that holds something else |
 | `src/main/tokenStore.ts` | Tokens encrypted with `safeStorage` (Keychain, DPAPI, libsecret) |
 | `src/preload/index.ts` | The `window.hx` bridge; the interface has no Node and no network |
 | `src/renderer/src/styles/tokens.css` | TONE3000's `--t3k-*` tokens |

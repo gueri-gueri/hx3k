@@ -13,7 +13,8 @@ when its user picks it, with that user's own TONE3000 account. Each capture
 belongs to its creator and stays under the license its creator chose; the app
 shows that license and writes a credits file beside the converted files.
 
-No Line 6 firmware, code or data is included.
+No Line 6 firmware, code or data is included. What the app sends to the HX
+Stomp over USB follows what HX Edit sends; none of HX Edit is in it.
 
 Third-party material
 --------------------
@@ -50,6 +51,13 @@ MIT License, Copyright (c) 2026 TONE3000.
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
+
+usb (https://github.com/node-usb/node-usb), MIT License,
+Copyright (c) 2012 Nonolith Labs, LLC, under the license text above.
+  It talks to the HX Stomp over USB, and is the one package that ships beside
+  the app's own code rather than inside it. Its binaries include libusb
+  (https://libusb.info), LGPL-2.1-or-later, Copyright (C) the libusb authors;
+  the source of both is in the usb package (node_modules/usb/libusb).
 
 TONE3000 logos (src/renderer/src/assets/brand/): the official "TONE3000 Logos"
 assets from https://www.tone3000.com/api, unmodified. They are TONE3000's

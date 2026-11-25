@@ -6,10 +6,19 @@ directories:
   output: release
   buildResources: build
 
-# Everything the app runs is bundled into out/ by electron-vite.
+# Everything the app runs is bundled into out/ by electron-vite, but for usb
+# (libusb), a native module: it comes from node_modules, as electron-builder
+# takes every runtime dependency.
 files:
   - out/**/*
   - package.json
+
+# usb ships its binaries built for each system and for any version of Electron
+# (N-API), so nothing is compiled here. They are loaded from disk, not from the archive.
+npmRebuild: false
+asarUnpack:
+  - node_modules/usb/**
+  - node_modules/node-gyp-build/**
 
 # The licenses travel with the app, as the GPL asks.
 extraResources:

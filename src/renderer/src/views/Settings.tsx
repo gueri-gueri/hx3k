@@ -91,6 +91,19 @@ export function SettingsView(): ReactNode {
       </section>
 
       <section className="section">
+        <h2>{t('settings.device')}</h2>
+        <div className="card">
+          <div className="setting">
+            <div className="setting-text">
+              <strong>{t('settings.autoSend')}</strong>
+              <span>{t('settings.autoSend.help')}</span>
+            </div>
+            <Toggle checked={settings.sendAfterConvert} onChange={(v) => void update({ sendAfterConvert: v })} label={t('settings.autoSend')} />
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
         <h2>{t('settings.appearance')}</h2>
         <div className="card">
           <div className="setting">

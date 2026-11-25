@@ -16,7 +16,7 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "test": "vitest run",
     "test:e2e": "node tests/e2e/smoke.mjs",
-    "hx:probe": "HX3K_STOMP=1 HX3K_WAV= vitest run tests/hx.hardware.test.ts --silent=false",
+    "hx:probe": "HX3K_STOMP=1 HX3K_WAV= vitest run tests/hx.hardware.test.ts tests/device.test.ts -t \"A real HX Stomp\" --no-file-parallelism --silent=false",
     "hx:import": "HX3K_STOMP=1 vitest run tests/hx.hardware.test.ts -t import --silent=false",
     "icon": "electron scripts/make-icon.cjs",
     "dist": "npm run build && electron-builder",
@@ -36,8 +36,10 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "typescript": "^7.0.2",
-    "usb": "^2.19.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.1"
+  },
+  "dependencies": {
+    "usb": "^2.19.2"
   }
 }
