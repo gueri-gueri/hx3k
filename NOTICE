@@ -23,6 +23,8 @@ Copyright (C) 2026 Derek Bui and the HXtra contributors.
   (commit 01708b45004cc2a232e32e8e9020a3237fdad06d). It does the conversion.
   The steps of "Load on the HX Stomp" and the wording of the conversion notes
   follow HXtra's setup page (web/index.html).
+  src/main/hx/ speaks the HX Stomp's USB protocol as HXtra's
+  tools/hx_dfu_reboot.py and tools/hx_ctl.py describe it, and follows their code.
   HXtra itself builds on hx-stomp-nam-lite by Derek Bui
   (https://github.com/nocaseguy/hx-stomp-nam-lite).
 

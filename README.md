@@ -79,6 +79,7 @@ with no key and no network. It only works outside the packaged app.
 | `npm run typecheck` | Types of the main process and of the interface |
 | `npm run build` | Compiles to `out/` |
 | `npm run test:e2e` | Drives the compiled app, in sample mode, from the first screen to the `.wav` files on disk |
+| `npm run hx:probe` | Reads the loaded preset, the setlist's names and the blocks from a real HX Stomp over USB (macOS and Linux, HX Edit closed); changes nothing on it |
 | `npm run dist` | Packages with electron-builder into `release/` (dmg/zip, NSIS, AppImage/deb) |
 | `npm run icon` | Regenerates `build/icon.png` from `build/icon.svg` |
 
@@ -109,6 +110,7 @@ on first launch, and Windows shows SmartScreen's *More info → Run anyway*.
 | `src/main/t3k.ts` | API client: lists, tone, models, download; token refresh |
 | `src/main/convert.ts` | Calls HXtra's converter |
 | `src/main/library.ts` | Writes the `.wav` files, the history and the credits file |
+| `src/main/hx/` | The HX Stomp's USB protocol, as HX Edit speaks it; read-only for now and not yet used by the app |
 | `src/main/tokenStore.ts` | Tokens encrypted with `safeStorage` (Keychain, DPAPI, libsecret) |
 | `src/preload/index.ts` | The `window.hx` bridge; the interface has no Node and no network |
 | `src/renderer/src/styles/tokens.css` | TONE3000's `--t3k-*` tokens |

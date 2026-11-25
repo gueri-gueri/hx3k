@@ -16,6 +16,7 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "test": "vitest run",
     "test:e2e": "node tests/e2e/smoke.mjs",
+    "hx:probe": "HX3K_STOMP=1 vitest run tests/hx.hardware.test.ts --silent=false",
     "icon": "electron scripts/make-icon.cjs",
     "dist": "npm run build && electron-builder",
     "dist:dir": "npm run build && electron-builder --dir"
@@ -34,6 +35,7 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "typescript": "^7.0.2",
+    "usb": "^2.19.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.1"
   }
