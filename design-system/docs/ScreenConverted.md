@@ -15,6 +15,6 @@ Nothing else changes: rows and heads already wrap.
 
 ## This screen
 
-`page-head` with the title, its lead and two outline actions (How to load them, Open folder); the `Notice` that says what the .wav is; then `Rows`, one per capture. Empty: an `EmptyState` with a title, the `BrowseButton` and "Convert local files".
+`page-head` with the title, its lead and two outline actions (How to load them, Open folder); the `Notice` that says what the .wav is; then `Rows`, one per capture. Each row sends its capture to the HX Stomp: Send to the HX Stomp is the row's accent button until it is sent, and then the row says "Sent to the HX Stomp: slot 12", the number the NAM A2 Lite block's Model takes, and the button reads Send again. Empty: an `EmptyState` with a title, the `BrowseButton` and "Convert local files".
 
 `Shell` in the example is the `ScreenTones` card's wrapper; it is not exported.

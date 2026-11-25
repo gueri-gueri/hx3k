@@ -44,6 +44,10 @@ export const ConvertedScreen = () => (
             <div className="row-sub mono selectable">Plexi Lead 100 - Gain 4 - SM57 NAM.wav</div>
           </div>
           <div className="actions actions-end">
+            <button type="button" className="btn btn-accent btn-sm">
+              <Icon name="upload" />
+              Send to the HX Stomp
+            </button>
             <button type="button" className="btn btn-outline btn-sm">
               <Icon name="folder" />
               Show in folder
@@ -65,8 +69,16 @@ export const ConvertedScreen = () => (
               <span className="chip">Local file</span>
             </div>
             <div className="row-sub mono selectable">Bedroom Combo Clean NAM.wav</div>
+            <div className="row-status row-ok">
+              <Icon name="check" />
+              <span className="selectable">Sent to the HX Stomp: slot 12</span>
+            </div>
           </div>
           <div className="actions actions-end">
+            <button type="button" className="btn btn-outline btn-sm">
+              <Icon name="upload" />
+              Send again
+            </button>
             <button type="button" className="btn btn-outline btn-sm">
               <Icon name="folder" />
               Show in folder

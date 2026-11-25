@@ -3,10 +3,12 @@ import { Shell } from './_shell.jsx'
 export const AllSections = () => {
   const [level, setLevel] = useState(true)
   const [loudness, setLoudness] = useState(true)
+  const [autoSend, setAutoSend] = useState(false)
+  const [point, setPoint] = useState(false)
   const [theme, setTheme] = useState('dark')
   const [language, setLanguage] = useState('system')
   return (
-    <Shell current="settings" count={1} height={1180}>
+    <Shell current="settings" count={1} height={1420}>
       <div className="page page-narrow">
         <div className="page-head">
           <h1>Settings</h1>
@@ -47,6 +49,32 @@ export const AllSections = () => {
                 <span>When a capture gives its loudness, its output is set to −18 dB so captures play at about the same volume. Off: as it comes out.</span>
               </div>
               <Toggle checked={loudness} onChange={setLoudness} label="Even out loudness" />
+            </div>
+          </div>
+        </section>
+
+        <section className="section">
+          <h2>HX Stomp</h2>
+          <div className="card">
+            <div className="setting">
+              <div className="setting-text">
+                <strong>Send after converting</strong>
+                <span>
+                  When the HX Stomp is connected by USB, each capture goes to a free User IR slot as soon as it is converted. HX Edit has to be closed. Off: press
+                  Send to the HX Stomp on a capture.
+                </span>
+              </div>
+              <Toggle checked={autoSend} onChange={setAutoSend} label="Send after converting" />
+            </div>
+            <div className="setting">
+              <div className="setting-text">
+                <strong>Point the NAM A2 Lite block at what is sent</strong>
+                <span>
+                  After a capture is sent, the NAM A2 Lite block of the preset on the unit is set to its slot, so you hear it at once. Only when that preset has
+                  exactly one such block. The preset is changed, not saved.
+                </span>
+              </div>
+              <Toggle checked={point} onChange={setPoint} label="Point the NAM A2 Lite block at what is sent" />
             </div>
           </div>
         </section>

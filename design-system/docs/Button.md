@@ -7,9 +7,9 @@ A CSS pattern, not a bundle export: there is no `window.HX3K.Button`. Write a `<
 | Class | Looks like | Use it for |
 |---|---|---|
 | `btn-primary` | `t3k-primary` gradient, `t3k-on-primary` label | The one action a screen exists for: Continue, Save key, Convert all, Connect. One per screen. |
-| `btn-accent` | `t3k-accent` fill, `t3k-on-accent` label | The action of a row when several rows each have one: Convert on a model. It steps back to `btn-outline` once done. |
+| `btn-accent` | `t3k-accent` fill, `t3k-on-accent` label | The action of a row when several rows each have one: Convert on a model, Send to the HX Stomp on a converted capture. Once done it steps back: Send again is `btn-outline`, Convert again `btn-quiet`. |
 | `btn-outline` | 1px `t3k-line`, `t3k-fg` label | Everything secondary: Open folder, Show in folder, Choose…, Previous, Next. |
-| `btn-quiet` | No edge, `t3k-muted-2` label | The least weight: Back, Refresh, Cancel, Clear, Remove, Change key. |
+| `btn-quiet` | No edge, `t3k-muted-2` label | The least weight: Back, Refresh, Cancel, Clear, Remove, Change key, Convert again. |
 | `btn-danger` | 1px `t3k-danger`, `t3k-danger` label | The confirmation of a destructive action, never the first click: Move to trash. |
 | `btn-browse` | `t3k-surface` fill, the T3K mark | Only through the `BrowseButton` component. |
 

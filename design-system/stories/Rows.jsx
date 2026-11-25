@@ -35,7 +35,7 @@ export const Models = () => (
         </button>
       </div>
     </div>
-    {/* Done: the outcome stays in the row, and the action steps back to an outline. */}
+    {/* Done: the outcome stays in the row. Its action is now sending the capture, and Convert again steps back. */}
     <div className="row">
       <div className="row-main">
         <div className="row-title selectable">Gain 9 - SM57</div>
@@ -55,7 +55,11 @@ export const Models = () => (
           <Icon name="folder" />
           Show in folder
         </button>
-        <button type="button" className="btn btn-outline btn-sm">Convert again</button>
+        <button type="button" className="btn btn-accent btn-sm">
+          <Icon name="upload" />
+          Send to the HX Stomp
+        </button>
+        <button type="button" className="btn btn-quiet btn-sm">Convert again</button>
       </div>
     </div>
     {/* Failed: the reason, in the row. */}
@@ -82,7 +86,7 @@ export const Models = () => (
 
 export const Converted = () => (
   <div className="rows">
-    {/* A capture that came from TONE3000: its picture, with the origin marker. */}
+    {/* A capture that came from TONE3000: its picture, with the origin marker. It was sent: the row says to which slot. */}
     <div className="row">
       <div className="thumb">
         <ToneImage className="thumb-image" src={TONES[0].image} />
@@ -107,8 +111,16 @@ export const Converted = () => (
           <span className="chip chip-line chip-off">captured at 12.5 dBu · input −6.5 dB</span>
         </div>
         <div className="row-sub mono selectable">Plexi Lead 100 - Gain 4 - SM57 NAM.wav</div>
+        <div className="row-status row-ok">
+          <Icon name="check" />
+          <span className="selectable">Sent to the HX Stomp: slot 12</span>
+        </div>
       </div>
       <div className="actions actions-end">
+        <button type="button" className="btn btn-outline btn-sm" aria-label="Send again: Plexi Lead 100 - Gain 4 - SM57 NAM.wav">
+          <Icon name="upload" />
+          Send again
+        </button>
         <button type="button" className="btn btn-outline btn-sm">
           <Icon name="folder" />
           Show in folder

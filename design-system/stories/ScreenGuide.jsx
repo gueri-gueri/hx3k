@@ -1,12 +1,12 @@
 import { Shell } from './_shell.jsx'
 
 export const LoadOnTheStomp = () => (
-  <Shell current="guide" count={1} height={860}>
+  <Shell current="guide" count={1} height={1040}>
     <div className="page page-narrow">
       <div className="page-head">
         <div>
           <h1>Load a capture and play</h1>
-          <p>Import the .wav files with HX Edit, then point the NAM A2 Lite block at them.</p>
+          <p>Send the captures to the HX Stomp from here, then point the NAM A2 Lite block at them.</p>
         </div>
       </div>
 
@@ -21,16 +21,12 @@ export const LoadOnTheStomp = () => (
       </div>
 
       <ol className="steps steps-lg">
-        <li>Open HX Edit with the HX Stomp connected, and open the Impulses list.</li>
+        <li>Connect the HX Stomp by USB, with HX Edit closed.</li>
         <li>
           <div>
-            Drag a .wav from the output folder onto a free slot. Write down its number, for example 5.
+            Press Send to the HX Stomp on a capture, in Converted. It goes to a free User IR slot, and the app tells you the slot’s number.
             <div className="actions step-actions">
-              <button type="button" className="btn btn-outline btn-sm">
-                <Icon name="folder" />
-                Open folder
-              </button>
-              <span className="mono muted selectable">/Users/sample/Music/HX3K</span>
+              <button type="button" className="btn btn-outline btn-sm">Converted</button>
             </div>
           </div>
         </li>
@@ -39,6 +35,26 @@ export const LoadOnTheStomp = () => (
       </ol>
 
       <Notice>The .wav isn't a sound: it carries the capture's 1,871 numbers. Don't load it into a Cab or IR block. It is for the NAM A2 Lite block only.</Notice>
+
+      <section className="section">
+        <h2>With HX Edit instead</h2>
+        <p className="muted">The same by hand. On Windows it is the only way: Line 6’s driver keeps the HX Stomp to itself.</p>
+        <ol className="steps steps-lg">
+          <li>Open HX Edit with the HX Stomp connected, and open the Impulses list.</li>
+          <li>
+            <div>
+              Drag a .wav from the output folder onto a free slot. Write down its number, for example 5.
+              <div className="actions step-actions">
+                <button type="button" className="btn btn-outline btn-sm">
+                  <Icon name="folder" />
+                  Open folder
+                </button>
+                <span className="mono muted selectable">/Users/sample/Music/HX3K</span>
+              </div>
+            </div>
+          </li>
+        </ol>
+      </section>
 
       <section className="section">
         <h2>Good to know</h2>

@@ -48,7 +48,7 @@
   "mode": "column",
   "width": 900,
   "subtitle": "Models, converted captures, local results",
-  "height": 1321
+  "height": 1420
  },
  {
   "name": "EmptyState",
@@ -122,7 +122,7 @@
   "name": "Steps",
   "group": "Layout",
   "mode": "column",
-  "height": 485
+  "height": 507
  },
  {
   "name": "ScreenTones",
@@ -170,7 +170,7 @@
   "surface": false,
   "page": true,
   "width": 1240,
-  "height": 860
+  "height": 1040
  },
  {
   "name": "ScreenSettings",
@@ -179,7 +179,7 @@
   "surface": false,
   "page": true,
   "width": 1240,
-  "height": 1180
+  "height": 1420
  },
  {
   "name": "ScreenSplash",

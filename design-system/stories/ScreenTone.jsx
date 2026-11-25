@@ -79,7 +79,11 @@ export const Tone = () => (
                 <Icon name="folder" />
                 Show in folder
               </button>
-              <button type="button" className="btn btn-outline btn-sm">Convert again</button>
+              <button type="button" className="btn btn-accent btn-sm">
+                <Icon name="upload" />
+                Send to the HX Stomp
+              </button>
+              <button type="button" className="btn btn-quiet btn-sm">Convert again</button>
             </div>
           </div>
           <div className="row">

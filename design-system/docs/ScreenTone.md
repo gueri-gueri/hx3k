@@ -7,7 +7,7 @@ A showcase of the app's own screen, not a component: there is nothing to mount. 
 - Back (`btn-quiet btn-sm`) alone on the first line.
 - `detail`: a grid of the picture (220 to 340px, 4:3, `detail-image`) and `detail-info`, 28px apart. At 1040px and under it becomes one column and the picture stops at 420px.
 - `detail-info`, 14px between its parts: the `h1`, fill chips for gear and format and a line chip for the license, the `Creator` at 26px, the description under its `h2` (clamped to four lines when it is longer than 280 characters, with "Read more"), up to twelve tags as line chips, the `meta-row` of counts, and "Open on TONE3000".
-- A `section` headed "Model": the help line, "Convert all (n)" as the screen's one `btn-primary` when more than one model converts, and the `Rows` of models.
+- A `section` headed "Model": the help line, "Convert all (n)" as the screen's one `btn-primary` when more than one model converts, and the `Rows` of models. A converted model offers Send to the HX Stomp in its row, as the Converted screen does.
 
 ## Rules
 

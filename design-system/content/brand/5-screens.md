@@ -8,8 +8,8 @@ The app has nine screens. Each has a showcase card under Components, group Scree
 | One tone | `ScreenTone` | Tones (stays current) | Back, the `detail` grid, `Chip`s, `Creator`, `Rows` of models |
 | Converted | `ScreenConverted` | Converted, with its count | `PageHead` with actions, `Notice`, `Rows` |
 | Local files | `ScreenLocalFiles` | Local files | `PageHead`, `Dropzone`, `Rows` of results, `Notice` |
-| Load on the HX Stomp | `ScreenGuide` | Load on the HX Stomp | `PageHead`, a one-row card, `Steps`, `Notice`, a card of notes |
-| Settings | `ScreenSettings` | Settings | `PageHead`, five `SettingsCard`s |
+| Load on the HX Stomp | `ScreenGuide` | Load on the HX Stomp | `PageHead`, a one-row card, `Steps`, `Notice`, a section of `Steps` by hand, a card of notes |
+| Settings | `ScreenSettings` | Settings | `PageHead`, six `SettingsCard`s |
 | Before sign-in | `ScreenSplash` | TONE3000 or Tones | The splash panel: two logos, copy, one primary button |
 | First run | `ScreenSetup` | Tones | The setup panel: `Steps`, `Field` |
 | TONE3000 | `ScreenTone3000` | TONE3000 | The stage that TONE3000's own pages are laid over |

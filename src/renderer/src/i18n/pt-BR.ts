@@ -141,8 +141,8 @@ export const ptBR: Record<Key, string> = {
 
   'guide.title': 'Carregue uma captura e toque',
   'guide.lead': 'Envie as capturas para o HX Stomp daqui e depois aponte o bloco NAM A2 Lite para elas.',
-  'guide.s1': 'Conecte o HX Stomp por USB e feche o HX Edit: só um programa fala com o aparelho por vez.',
-  'guide.s2': 'Em Convertidos, clique em Enviar para o HX Stomp numa captura. Ela vai para um slot de User IR livre, e o app mostra o número do slot.',
+  'guide.s1': 'Conecte o HX Stomp por USB, com o HX Edit fechado.',
+  'guide.s2': 'Clique em Enviar para o HX Stomp numa captura, em Convertidos. Ela vai para um slot de User IR livre, e o app mostra o número do slot.',
   'guide.manual': 'Pelo HX Edit',
   'guide.manual.lead': 'O mesmo, à mão. No Windows é o único caminho: o driver da Line 6 fica com o HX Stomp só para ele.',
   'guide.need.title': 'O seu HX Stomp precisa do HXtra',

@@ -8,16 +8,12 @@ export const Setup = () => (
 
 export const Guide = () => (
   <ol className="steps steps-lg">
-    <li>Open HX Edit with the HX Stomp connected, and open the Impulses list.</li>
+    <li>Connect the HX Stomp by USB, with HX Edit closed.</li>
     <li>
       <div>
-        Drag a .wav from the output folder onto a free slot. Write down its number, for example 5.
+        Press Send to the HX Stomp on a capture, in Converted. It goes to a free User IR slot, and the app tells you the slot’s number.
         <div className="actions step-actions">
-          <button type="button" className="btn btn-outline btn-sm">
-            <Icon name="folder" />
-            Open folder
-          </button>
-          <span className="mono muted selectable">/Users/sample/Music/HX3K</span>
+          <button type="button" className="btn btn-outline btn-sm">Converted</button>
         </div>
       </div>
     </li>

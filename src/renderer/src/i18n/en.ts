@@ -113,7 +113,7 @@ export const en = {
   'conv.removed': 'Removed: {file}',
   'conv.missing': 'File not found',
   'conv.howTo': 'How to load them',
-  'send.button': 'Send to HX Stomp',
+  'send.button': 'Send to the HX Stomp',
   'send.again': 'Send again',
   'send.sending': 'Sending…',
   'send.title': 'Puts the capture in a free User IR slot of the HX Stomp connected by USB. Quit HX Edit first.',
@@ -147,8 +147,8 @@ export const en = {
   // How to load on the unit (HXtra's setup page, step 7)
   'guide.title': 'Load a capture and play',
   'guide.lead': 'Send the captures to the HX Stomp from here, then point the NAM A2 Lite block at them.',
-  'guide.s1': 'Connect the HX Stomp by USB, and quit HX Edit: only one program can talk to the unit at a time.',
-  'guide.s2': 'In Converted, press Send to HX Stomp on a capture. It goes to a free User IR slot, and the app tells you the slot’s number.',
+  'guide.s1': 'Connect the HX Stomp by USB, with HX Edit closed.',
+  'guide.s2': 'Press Send to the HX Stomp on a capture, in Converted. It goes to a free User IR slot, and the app tells you the slot’s number.',
   'guide.manual': 'With HX Edit instead',
   'guide.manual.lead': 'The same by hand. On Windows it is the only way: Line 6’s driver keeps the HX Stomp to itself.',
   'guide.need.title': 'Your HX Stomp needs HXtra',
@@ -177,7 +177,7 @@ export const en = {
   'settings.device': 'HX Stomp',
   'settings.autoSend': 'Send after converting',
   'settings.autoSend.help':
-    'When the HX Stomp is connected by USB, each capture goes to a free User IR slot as soon as it is converted. HX Edit has to be closed. Off: press Send to HX Stomp on a capture.',
+    'When the HX Stomp is connected by USB, each capture goes to a free User IR slot as soon as it is converted. HX Edit has to be closed. Off: press Send to the HX Stomp on a capture.',
   'settings.point': 'Point the NAM A2 Lite block at what is sent',
   'settings.point.help':
     'After a capture is sent, the NAM A2 Lite block of the preset on the unit is set to its slot, so you hear it at once. Only when that preset has exactly one such block. The preset is changed, not saved.',
