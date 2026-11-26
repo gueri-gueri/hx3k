@@ -6,7 +6,7 @@ A `page page-narrow` of `section`s, each an `h2` label over one `SettingsCard`:
 
 - Output folder: the path in mono, Open folder and Choose….
 - Conversion: two `Toggle` rows.
-- HX Stomp: two `Toggle` rows, both off until asked for: send each capture as soon as it is converted, and point the NAM A2 Lite block at what is sent.
+- HX Stomp: two `Toggle` rows: send each capture as soon as it is converted, off until asked for, and point the NAM A2 Lite block at what is sent, on unless turned off.
 - Appearance: the language (`Select`) and the theme (`Segmented`).
 - TONE3000 account: the full TONE3000 logo with who is connected and Sign out (or "Not connected" and a primary Connect), then the publishable key, shown as its first twelve characters with Change key.
 - About: the version, what the app does, whose the captures are, the license, the links, and the trademark line in `small`.

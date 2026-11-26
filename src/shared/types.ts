@@ -82,7 +82,7 @@ export interface Settings {
   includeLoudness: boolean
   /** Send each capture to the HX Stomp as soon as it is converted, when one is connected. */
   sendAfterConvert: boolean
-  /** After a capture is sent, point the NAM A2 Lite block of the preset on the unit at its slot. */
+  /** After a capture is sent, point the NAM A2 Lite block of the preset on the unit at its slot. On unless turned off. */
   pointBlock: boolean
 }
 

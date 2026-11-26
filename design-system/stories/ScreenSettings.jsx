@@ -4,7 +4,7 @@ export const AllSections = () => {
   const [level, setLevel] = useState(true)
   const [loudness, setLoudness] = useState(true)
   const [autoSend, setAutoSend] = useState(false)
-  const [point, setPoint] = useState(false)
+  const [point, setPoint] = useState(true)
   const [theme, setTheme] = useState('dark')
   const [language, setLanguage] = useState('system')
   return (
@@ -71,7 +71,7 @@ export const AllSections = () => {
                 <strong>Point the NAM A2 Lite block at what is sent</strong>
                 <span>
                   After a capture is sent, the NAM A2 Lite block of the preset on the unit is set to its slot, so you hear it at once. Only when that preset has
-                  exactly one such block. The preset is changed, not saved.
+                  exactly one such block. The preset is changed, not saved. Off: turn the block’s Model to the slot yourself.
                 </span>
               </div>
               <Toggle checked={point} onChange={setPoint} label="Point the NAM A2 Lite block at what is sent" />

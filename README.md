@@ -17,8 +17,9 @@ app, and it comes back ready for the HX Stomp.
 - **Convert**: downloads the model you chose and writes `<name> NAM.wav` to the output folder.
 - **Local files**: converts `.nam` files you already have, with no account and no network.
 - **Send to the HX Stomp**: puts a converted capture in a free User IR slot of the HX Stomp connected by USB and tells
-  you the slot's number, so HX Edit is not needed. Settings can have it done as soon as a capture is converted,
-  and can have the NAM A2 Lite block of the preset on the unit pointed at that slot, so the capture plays at once.
+  you the slot's number, so HX Edit is not needed. It then points the NAM A2 Lite block of the preset on the unit at
+  that slot, so the capture plays at once (Settings can turn that off). Settings can also have a capture sent as
+  soon as it is converted.
   macOS and Linux (not tried on Linux, where the user needs access to the USB device); on Windows Line 6's driver
   keeps the unit to itself, and the `.wav` goes in with HX Edit.
 - **Credits**: writes `TONE3000 credits.txt` beside the `.wav` files, with the creator, license and link of each

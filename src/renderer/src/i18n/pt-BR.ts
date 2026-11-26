@@ -174,7 +174,7 @@ export const ptBR: Record<Key, string> = {
     'Com o HX Stomp conectado por USB, cada captura vai para um slot de User IR livre assim que é convertida. O HX Edit precisa estar fechado. Desligado: use Enviar para o HX Stomp numa captura.',
   'settings.point': 'Apontar o bloco NAM A2 Lite para o que é enviado',
   'settings.point.help':
-    'Depois de enviar uma captura, o bloco NAM A2 Lite do preset que está no aparelho passa a usar o slot dela, e você ouve na hora. Só quando esse preset tem exatamente um bloco desses. O preset é alterado, não salvo.',
+    'Depois de enviar uma captura, o bloco NAM A2 Lite do preset que está no aparelho passa a usar o slot dela, e você ouve na hora. Só quando esse preset tem exatamente um bloco desses. O preset é alterado, não salvo. Desligado: gire você o Model do bloco até o slot.',
   'settings.appearance': 'Aparência',
   'settings.language': 'Idioma',
   'settings.language.system': 'Do sistema',

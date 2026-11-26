@@ -19,7 +19,7 @@ function defaults(): Settings {
     includeLevel: true,
     includeLoudness: true,
     sendAfterConvert: false,
-    pointBlock: false,
+    pointBlock: true,
   }
 }
 

@@ -180,7 +180,7 @@ export const en = {
     'When the HX Stomp is connected by USB, each capture goes to a free User IR slot as soon as it is converted. HX Edit has to be closed. Off: press Send to the HX Stomp on a capture.',
   'settings.point': 'Point the NAM A2 Lite block at what is sent',
   'settings.point.help':
-    'After a capture is sent, the NAM A2 Lite block of the preset on the unit is set to its slot, so you hear it at once. Only when that preset has exactly one such block. The preset is changed, not saved.',
+    'After a capture is sent, the NAM A2 Lite block of the preset on the unit is set to its slot, so you hear it at once. Only when that preset has exactly one such block. The preset is changed, not saved. Off: turn the block’s Model to the slot yourself.',
   'settings.appearance': 'Appearance',
   'settings.language': 'Language',
   'settings.language.system': 'System',

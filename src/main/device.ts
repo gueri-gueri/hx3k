@@ -92,6 +92,8 @@ async function onUnit(record: ConversionRecord, name: string, data: Uint8Array, 
 // Development only (HX3K_MOCK=1): a made-up unit that starts empty, so the screens
 // can be worked on and tested with no HX Stomp.
 const sampleUnit: ImpulseEntry[] = []
+/** The slot its one NAM A2 Lite block is on. */
+let samplePointed = 0
 
 async function onSampleUnit(record: ConversionRecord, name: string, hash: string): Promise<Choice> {
   await sleep(300)
@@ -102,7 +104,10 @@ async function onSampleUnit(record: ConversionRecord, name: string, hash: string
     if (at >= 0) sampleUnit.splice(at, 1)
     sampleUnit.push({ index: choice.index, name, hash })
   }
-  return getSettings().pointBlock ? { ...choice, block: 'set' } : choice
+  if (!getSettings().pointBlock) return choice
+  const block = samplePointed === choice.index + 1 ? 'already' : 'set'
+  samplePointed = choice.index + 1
+  return { ...choice, block }
 }
 
 async function send(id: string): Promise<SendOutcome> {
