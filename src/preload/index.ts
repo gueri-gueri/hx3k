@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { type Bridge, IPC } from '@shared/ipc'
-import type { AuthResult } from '@shared/types'
+import type { AuthResult, HxtraProgress } from '@shared/types'
 
 // The theme the window was opened with (src/main/index.ts), put on the document
 // before its first paint: a light-theme user never sees a dark flash.
@@ -56,6 +56,23 @@ const bridge: Bridge = {
   removeConversion: (id) => ipcRenderer.invoke(IPC.libraryRemove, id),
   sendToDevice: (id) => ipcRenderer.invoke(IPC.deviceSend, id),
   reveal: (id) => ipcRenderer.invoke(IPC.reveal, id),
+
+  hxtraState: () => ipcRenderer.invoke(IPC.hxtraState),
+  hxtraChoose: (version, choice) => ipcRenderer.invoke(IPC.hxtraChoose, version, choice),
+  // The page knows the file it was given, not where it is: its path is asked here, where the page cannot.
+  hxtraSetStock: (file) => ipcRenderer.invoke(IPC.hxtraSetStock, webUtils.getPathForFile(file)),
+  hxtraBuild: (version, choice) => ipcRenderer.invoke(IPC.hxtraBuild, version, choice),
+  hxtraCancel: () => ipcRenderer.invoke(IPC.hxtraCancel),
+  onHxtraProgress: (listener) => {
+    const handler = (_event: Electron.IpcRendererEvent, progress: HxtraProgress): void => listener(progress)
+    ipcRenderer.on(IPC.hxtraProgress, handler)
+    return () => {
+      ipcRenderer.off(IPC.hxtraProgress, handler)
+    }
+  },
+  hxtraSave: () => ipcRenderer.invoke(IPC.hxtraSave),
+  hxtraReveal: () => ipcRenderer.invoke(IPC.hxtraReveal),
+  hxtraOpenUpdater: () => ipcRenderer.invoke(IPC.hxtraOpenUpdater),
   openOutputDir: () => ipcRenderer.invoke(IPC.openOutputDir),
   openExternal: (url) => ipcRenderer.invoke(IPC.openExternal, url),
 }

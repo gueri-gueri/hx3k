@@ -5,6 +5,9 @@ import type {
   ConversionRecord,
   LocalNam,
   LocalOutcome,
+  HxtraChoice,
+  HxtraProgress,
+  HxtraState,
   Model,
   Result,
   SendOutcome,
@@ -34,6 +37,15 @@ export const IPC = {
   library: 'library:list',
   libraryRemove: 'library:remove',
   deviceSend: 'device:send',
+  hxtraState: 'hxtra:state',
+  hxtraChoose: 'hxtra:choose',
+  hxtraSetStock: 'hxtra:set-stock',
+  hxtraBuild: 'hxtra:build',
+  hxtraCancel: 'hxtra:cancel',
+  hxtraProgress: 'hxtra:progress',
+  hxtraSave: 'hxtra:save',
+  hxtraReveal: 'hxtra:reveal',
+  hxtraOpenUpdater: 'hxtra:open-updater',
   reveal: 'shell:reveal',
   openOutputDir: 'shell:open-output-dir',
   openExternal: 'shell:open-external',
@@ -77,6 +89,22 @@ export interface Bridge {
   /** Puts a converted capture in a User IR slot of the HX Stomp connected by USB. */
   sendToDevice(id: string): Promise<Result<SendOutcome>>
   reveal(id: string): Promise<Result<null>>
+
+  /** Installing HXtra: the releases offered, the stock file, the last build. */
+  hxtraState(): Promise<Result<HxtraState>>
+  /** Keeps the features picked for a release. */
+  hxtraChoose(version: string, choice: HxtraChoice): Promise<Result<HxtraState>>
+  /** Takes a picked or dropped file as Line 6's firmware file. */
+  hxtraSetStock(file: File): Promise<Result<HxtraState>>
+  /** Builds the firmware; its steps arrive through onHxtraProgress meanwhile. */
+  hxtraBuild(version: string, choice: HxtraChoice): Promise<Result<HxtraState>>
+  hxtraCancel(): Promise<Result<null>>
+  onHxtraProgress(listener: (progress: HxtraProgress) => void): () => void
+  /** Opens the save dialog for the last build; the state is unchanged if the user cancels. */
+  hxtraSave(): Promise<Result<HxtraState>>
+  /** Shows the saved firmware file in its folder. */
+  hxtraReveal(): Promise<Result<null>>
+  hxtraOpenUpdater(): Promise<Result<null>>
   openOutputDir(): Promise<Result<null>>
   /** Opens an https link in the system browser. */
   openExternal(url: string): Promise<Result<null>>

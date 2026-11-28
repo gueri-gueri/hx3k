@@ -22,6 +22,7 @@ import { APP_NAME, BUILD_CLIENT_ID, MOCK } from './config'
 import { convertNam } from './convert'
 import { sendToDevice } from './device'
 import { AppError, toResult } from './errors'
+import { buildHxtra, cancelBuild, hxtraState, openUpdater, rememberChoice, revealBuilt, saveBuilt, setStock } from './hxtra/install'
 import { findConversion, listConversions, removeConversion, saveConversion } from './library'
 import { abandonAuth, beginAuth, cancelAuth, focusAuth, openExternally, setAuthBounds } from './oauth'
 import { currentUser, isConnected, loadUser, signOut } from './session'
@@ -325,6 +326,19 @@ function registerIpc(): void {
   handle(IPC.library, () => listConversions())
   handle(IPC.libraryRemove, (_win, recordId: string) => removeConversion(String(recordId)))
   handle(IPC.deviceSend, (_win, recordId: string) => sendToDevice(String(recordId)))
+
+  handle(IPC.hxtraState, () => hxtraState())
+  handle(IPC.hxtraChoose, (_win, version: string, choice: unknown) => rememberChoice(String(version), choice))
+  handle(IPC.hxtraSetStock, (_win, path: string) => setStock(path))
+  handle(IPC.hxtraBuild, (win, version: string, choice: unknown) =>
+    buildHxtra(String(version), choice, (progress) => {
+      if (!win.isDestroyed()) win.webContents.send(IPC.hxtraProgress, progress)
+    }),
+  )
+  handle(IPC.hxtraCancel, () => cancelBuild())
+  handle(IPC.hxtraSave, (win) => saveBuilt(win))
+  handle(IPC.hxtraReveal, () => revealBuilt())
+  handle(IPC.hxtraOpenUpdater, () => openUpdater())
   handle(IPC.reveal, (_win, recordId: string) => {
     const record = findConversion(String(recordId))
     if (!record) throw new AppError('not_found', 'This conversion is no longer listed.')

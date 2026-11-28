@@ -8,6 +8,7 @@ import { type AppContext, Ctx, SCREEN_TITLE_ID, type View } from './context'
 import { type Key, errorText, resolveLang, translator } from './i18n'
 import { ConvertedView } from './views/Converted'
 import { GuideView } from './views/Guide'
+import { InstallView } from './views/Install'
 import { LocalView } from './views/Local'
 import { SettingsView } from './views/Settings'
 import { Tone3000Stage } from './views/Tone3000'
@@ -29,6 +30,7 @@ const NAV: NavItem[] = [
   { view: 'tones', icon: 'tones', label: 'nav.tones' },
   { view: 'converted', icon: 'wave', label: 'nav.converted' },
   { view: 'local', icon: 'file', label: 'nav.local' },
+  { view: 'install', icon: 'firmware', label: 'nav.install' },
   { view: 'guide', icon: 'guide', label: 'nav.guide' },
   { view: 'settings', icon: 'settings', label: 'nav.settings' },
 ]
@@ -331,6 +333,7 @@ export function App(): ReactNode {
               {shown.name === 'tone' && <ToneDetail id={shown.id} />}
               {shown.name === 'converted' && <ConvertedView />}
               {shown.name === 'local' && <LocalView />}
+              {shown.name === 'install' && <InstallView />}
               {shown.name === 'guide' && <GuideView />}
               {shown.name === 'settings' && <SettingsView />}
             </main>

@@ -26,6 +26,12 @@ Copyright (C) 2026 Derek Bui and the HXtra contributors.
   follow HXtra's setup page (web/index.html).
   src/main/hx/ speaks the HX Stomp's USB protocol as HXtra's
   tools/hx_dfu_reboot.py and tools/hx_ctl.py describe it, and follows their code.
+  src/main/hxtra/engine.ts runs a firmware build as HXtra's
+  web/firmware-worker.js does, and follows its code; the Install HXtra screen
+  follows the setup page's steps and wording. HXtra's build tools themselves
+  (build.py, tools/, src/m4/, src/sharc/ and the release's m4cache.json) are not
+  in this program: the app downloads them, unmodified, from HXtra's repository
+  at the release's commit, and checks each against its SHA-256.
   HXtra itself builds on hx-stomp-nam-lite by Derek Bui
   (https://github.com/nocaseguy/hx-stomp-nam-lite).
 
@@ -51,6 +57,14 @@ MIT License, Copyright (c) 2026 TONE3000.
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
+
+Pyodide (https://github.com/pyodide/pyodide), Mozilla Public License 2.0
+(its npm package, which the app ships, declares Apache-2.0), Copyright (C) the
+Pyodide contributors.
+  It runs HXtra's Python build tools, and ships beside the app's own code, as
+  usb does, with ws (MIT License), which it loads. Its numpy package (BSD
+  3-Clause, Copyright (C) NumPy Developers) is downloaded from Pyodide's CDN on
+  the first build.
 
 usb (https://github.com/node-usb/node-usb), MIT License,
 Copyright (c) 2012 Nonolith Labs, LLC, under the license text above.

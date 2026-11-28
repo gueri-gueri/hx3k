@@ -24,6 +24,10 @@ export function GuideView(): ReactNode {
             {t('guide.need.text')} <ExternalLink href={LINKS.hxtraSetup}>{t('guide.need.link')}</ExternalLink>
           </span>
         </div>
+        <button type="button" className="btn btn-outline btn-sm" onClick={() => go({ name: 'install' })}>
+          <Icon name="firmware" />
+          {t('nav.install')}
+        </button>
       </div>
 
       <ol className="steps steps-lg">

@@ -304,6 +304,36 @@ try {
   await page.getByRole('heading', { name: 'Load a capture and play' }).waitFor()
   await shot('guide')
 
+  // Installing HXtra: the features as its setup page counts them, a firmware file,
+  // and a build (sample mode takes any .hxf, and makes a few bytes of one).
+  await page.getByRole('button', { name: 'Install HXtra' }).last().click()
+  await page.getByRole('heading', { level: 1, name: 'Install HXtra' }).waitFor()
+  assert.equal((await selected.innerText()).trim(), 'Install HXtra')
+  await page.getByText('DSP memory: 13733 of 14239 words used, 506 left').waitFor()
+  // Every DSP feature is on, so three NAM blocks do not fit beside them.
+  assert.equal(await page.getByRole('button', { name: '3', exact: true }).isDisabled(), true)
+  await page.getByRole('switch', { name: 'Gain reduction meter' }).click()
+  await page.getByText('DSP memory: 12953 of 14239 words used, 1286 left').waitFor()
+  await page.getByRole('switch', { name: 'Gain reduction meter' }).click()
+  assert.equal(await page.getByRole('button', { name: 'Build HXtra 1.2.1' }).isDisabled(), true, 'no build without the firmware file')
+  const stock = join(work, 'HX_Stomp_v3.80.0_0x103966115.hxf')
+  writeFileSync(stock, 'sample stock firmware')
+  await page.locator('input[type=file][accept=".hxf"]').setInputFiles(stock)
+  await page.getByText('Line 6 firmware 3.80.0 for the HX Stomp').waitFor()
+  await shot('install')
+  await page.getByRole('button', { name: 'Build HXtra 1.2.1' }).click()
+  await page.locator('.status-ok', { hasText: 'Verified: your HX Stomp firmware is ready.' }).waitFor()
+  await page.locator('.sr-only[role="status"]', { hasText: 'Verified: your HX Stomp firmware is ready.' }).waitFor({ state: 'attached' })
+  assert.equal(await page.getByRole('button', { name: 'Save firmware…' }).isEnabled(), true)
+  assert.equal(await page.getByRole('button', { name: 'Build again' }).count(), 1)
+  // A changed choice is not what was built: the build is to be made again.
+  await page.getByRole('switch', { name: 'Real block names' }).click()
+  await page.getByText('The features changed since this build.').waitFor()
+  assert.equal(await page.getByRole('button', { name: 'Save firmware…' }).isDisabled(), true)
+  await page.getByRole('switch', { name: 'Real block names' }).click()
+  await page.locator('.status-ok').scrollIntoViewIfNeeded()
+  await shot('install-built')
+
   // Settings: language and theme apply at once.
   await menu('Settings').click()
   await shot('settings')

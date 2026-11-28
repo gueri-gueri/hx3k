@@ -166,6 +166,93 @@ export interface AppState {
   mock: boolean
 }
 
+// ─── HXtra, the firmware ────────────────────────────────────────────────────
+
+/**
+ * The spare DSP memory of a release (its m4cache.json "dsp"): the room each NAM
+ * A2 Lite slot count leaves, in words, and what each DSP feature takes of it.
+ */
+export interface DspTable {
+  /** In the order the setup page lists them. */
+  features: string[]
+  cost: Record<string, number>
+  /** By slot count, "0" for no NAM A2 Lite. */
+  room: Record<string, number>
+  /** The slot counts built, most first; 0 is no NAM A2 Lite. */
+  slots: number[]
+}
+
+/** What the user picked for a build, as the setup page asks it. */
+export interface HxtraChoice {
+  /** NAM A2 Lite at all. */
+  nam: boolean
+  /** How many NAM A2 Lite blocks play a capture in one preset, when `nam`. */
+  slots: number
+  /** The DSP features turned on. */
+  dsp: string[]
+  /** The other features turned on (they take no DSP). */
+  options: string[]
+}
+
+/** A release of HXtra the app can build. */
+export interface HxtraRelease {
+  /** e.g. "1.2.1" */
+  version: string
+  /** e.g. "v1.2.1" */
+  tag: string
+  notesUrl: string
+  /** The Line 6 firmware file it is built from, e.g. HX_Stomp_v3.80.0_0x103966115.hxf. */
+  stockFileName: string
+  /** What every build has. */
+  features: string[]
+  /** The features that take no DSP and can be turned on. */
+  options: string[]
+  dsp: DspTable
+  defaults: HxtraChoice
+}
+
+/** Line 6's own firmware file, checked: the right version, unchanged. */
+export interface StockFirmware {
+  path: string
+  name: string
+  size: number
+}
+
+/** A firmware file built here. */
+export interface HxtraBuild {
+  version: string
+  /** e.g. "HXtra_v1.2.1.hxf" */
+  fileName: string
+  md5: string
+  /**
+   * The very bytes HXtra tested for these features (the release pins the MD5 of
+   * every build it offers); null when the release pins none for them.
+   */
+  verified: boolean | null
+  size: number
+  choice: HxtraChoice
+  builtAt: string
+}
+
+export interface HxtraState {
+  releases: HxtraRelease[]
+  /** The stock file picked last, while it is still there. */
+  stock: StockFirmware | null
+  /** The last build, while its file is still there. */
+  built: HxtraBuild | null
+  /** Where the user saved the last build. */
+  savedPath: string | null
+  /** What was picked last, by version. */
+  choices: Record<string, HxtraChoice>
+  /** Line 6 Updater on this computer: found, not found, or a system it does not run on. */
+  updater: 'found' | 'missing' | 'unsupported'
+  /** A build is under way. */
+  building: boolean
+}
+
+/** What a build says while it runs: the step it is on (1 to BUILD_STEPS), or a line of its log. */
+export type HxtraProgress = { kind: 'step'; step: number } | { kind: 'log'; text: string }
+
 /** How an embedded TONE3000 flow ended. */
 export type AuthResult =
   | { status: 'connected'; user: User | null; toneId?: number }
@@ -207,6 +294,20 @@ export type ErrorCode =
   /** Every User IR slot is taken. */
   | 'device_full'
   | 'device_failed'
+  /** A file that is not firmware. */
+  | 'firmware_not_hxf'
+  /** A firmware file built by HXtra, not Line 6's own. */
+  | 'firmware_built'
+  /** Not Line 6's 3.80.0 file for the HX Stomp, unchanged. */
+  | 'firmware_wrong'
+  /** HXtra's build tools could not be downloaded, or are not the release's. */
+  | 'hxtra_tools'
+  /** The firmware build stopped. */
+  | 'hxtra_failed'
+  /** The user stopped the build. */
+  | 'canceled'
+  /** Line 6 Updater is not on this computer. */
+  | 'updater_missing'
   | 'unknown'
 
 export type Result<T> = { ok: true; data: T } | { ok: false; code: ErrorCode; message: string }

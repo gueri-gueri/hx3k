@@ -13,6 +13,7 @@ export type View =
   | { name: 'converted' }
   | { name: 'local' }
   | { name: 'guide' }
+  | { name: 'install' }
   | { name: 'settings' }
 
 export interface AppContext {

@@ -95,8 +95,28 @@ export function ExternalLink({ href, children }: { href: string; children: React
   )
 }
 
-export function Toggle({ checked, onChange, label }: { checked: boolean; onChange(next: boolean): void; label: string }): ReactNode {
-  return <button type="button" role="switch" aria-checked={checked} aria-label={label} className="toggle" onClick={() => onChange(!checked)} />
+export function Toggle({
+  checked,
+  onChange,
+  label,
+  disabled,
+}: {
+  checked: boolean
+  onChange(next: boolean): void
+  label: string
+  disabled?: boolean
+}): ReactNode {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      className="toggle"
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+    />
+  )
 }
 
 export function Notice({ kind = 'info', children }: { kind?: 'info' | 'error'; children: ReactNode }): ReactNode {

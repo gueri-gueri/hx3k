@@ -24,6 +24,10 @@ app, and it comes back ready for the HX Stomp.
   keeps the unit to itself, and the `.wav` goes in with HX Edit.
 - **Credits**: writes `TONE3000 credits.txt` beside the `.wav` files, with the creator, license and link of each
   capture.
+- **Install HXtra**: builds HXtra 1.2.1 from Line 6's own firmware file with the features you pick, as HXtra's setup
+  page does (the DSP features share the DSP's spare memory, and the screen offers only what fits), checks the result
+  is byte for byte the build HXtra tested, and walks you through installing it with Line 6 Updater. The firmware file
+  never leaves the computer. Like the setup page, the app does not write firmware to the unit: Line 6 Updater does.
 - Interface in Portuguese and English, dark and light themes.
 - Keyboard: **F6** switches between the app's menu and the TONE3000 page (Tab alone does not cross from one to the
   other).
@@ -38,7 +42,24 @@ HX Stomp's DSP runs. On TONE3000 that is the A2 architecture: every A2 `.nam` ca
 lists (a file with several sizes gives up its A2 Lite model). The `.wav` is not a sound: it carries the capture's numbers and only works in the
 NAM A2 Lite block.
 
-The HX Stomp needs HXtra installed: <https://wisemandenny.github.io/hxtra/web/>.
+The HX Stomp needs HXtra installed: from the app's **Install HXtra** screen, or from
+<https://wisemandenny.github.io/hxtra/web/>.
+
+### How it builds HXtra
+
+The build is HXtra's own: its Python tools, run in [Pyodide](https://pyodide.org) 0.26.4 (the version its setup page
+uses) in a worker thread, with the same commands and switches as the setup page's `web/firmware-worker.js`. The app
+ships none of HXtra's build code. The first build downloads it from HXtra's repository at the release's commit, with
+the release's `m4cache.json`, and numpy from Pyodide's CDN (about 13 MB in all), and keeps them in the app's data
+folder; later builds need no network. Every file must have the SHA-256 that
+[`src/main/hxtra/releases/v1.2.1.json`](src/main/hxtra/releases/v1.2.1.json) gives, or the build does not start. The
+result's MD5 is compared with the one HXtra pinned for those features.
+
+The manifest is written from a clone of HXtra and the release's `m4cache.json`:
+
+```bash
+node scripts/hxtra-release.mjs path/to/hxtra v1.2.1 path/to/m4cache.json > src/main/hxtra/releases/v1.2.1.json
+```
 
 ## Running
 
@@ -88,6 +109,7 @@ with no key and no network. It only works outside the packaged app.
 | `npm run hx:probe` | Reads the loaded preset, the setlist's names, the blocks and the User IRs from a real HX Stomp over USB (macOS and Linux, HX Edit closed); changes nothing on it |
 | `HX3K_WAV='… NAM.wav' npm run hx:import` | Writes a converted capture into the first free User IR slot of a real HX Stomp, or into slot `HX3K_SLOT`, and reads it back |
 | `HX3K_POINT=12 npm run hx:point` | Sets the Model of the NAM A2 Lite block in the preset on a real HX Stomp to that slot (changed, not saved), and reads it back |
+| `npm run hxtra:build` | Downloads HXtra 1.2.1's build tools and runs them in Pyodide up to the firmware check, which refuses a file that is not Line 6's. With `HX3K_STOCK_HXF=…/HX_Stomp_v3.80.0_0x103966115.hxf`, it also builds HXtra from that file and checks it is the build HXtra tested. Nothing is written to a unit |
 | `npm run dist` | Packages with electron-builder into `release/` (dmg/zip, NSIS, AppImage/deb) |
 | `npm run icon` | Regenerates `build/icon.png` from `build/icon.svg` |
 
@@ -120,6 +142,8 @@ on first launch, and Windows shows SmartScreen's *More info → Run anyway*.
 | `src/main/library.ts` | Writes the `.wav` files, the history and the credits file |
 | `src/main/hx/` | The HX Stomp's USB protocol, as HX Edit speaks it: reads presets and User IRs, writes a User IR slot |
 | `src/main/device.ts` | Sends a converted capture to the unit: picks the slot, never one that holds something else, and points the NAM A2 Lite block at it when asked |
+| `src/main/hxtra/` | Installs HXtra: the release's manifest, its build tools (downloaded and checked), Line 6's firmware file (checked by MD5), the build in Pyodide, and the hand-off to Line 6 Updater |
+| `src/shared/hxtra.ts` | What a build of HXtra takes: the DSP memory its features share, as the setup page counts it |
 | `src/main/tokenStore.ts` | Tokens encrypted with `safeStorage` (Keychain, DPAPI, libsecret) |
 | `src/preload/index.ts` | The `window.hx` bridge; the interface has no Node and no network |
 | `src/renderer/src/styles/tokens.css` | TONE3000's `--t3k-*` tokens |

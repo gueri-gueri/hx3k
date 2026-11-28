@@ -7,18 +7,22 @@ directories:
   buildResources: build
 
 # Everything the app runs is bundled into out/ by electron-vite, but for usb
-# (libusb), a native module: it comes from node_modules, as electron-builder
-# takes every runtime dependency.
+# (libusb), a native module, and pyodide (Python in WebAssembly, which builds
+# HXtra): they come from node_modules, as electron-builder takes every runtime
+# dependency.
 files:
   - out/**/*
   - package.json
 
 # usb ships its binaries built for each system and for any version of Electron
-# (N-API), so nothing is compiled here. They are loaded from disk, not from the archive.
+# (N-API), so nothing is compiled here. They are loaded from disk, not from the
+# archive. So is pyodide, read by a worker thread, with ws, which it imports.
 npmRebuild: false
 asarUnpack:
   - node_modules/usb/**
   - node_modules/node-gyp-build/**
+  - node_modules/pyodide/**
+  - node_modules/ws/**
 
 # The licenses travel with the app, as the GPL asks.
 extraResources:

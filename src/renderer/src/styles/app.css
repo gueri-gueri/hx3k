@@ -480,6 +480,7 @@ kbd {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  list-style: none;
 }
 
 .chip {
@@ -1116,6 +1117,124 @@ kbd {
   margin-bottom: 4px;
 }
 
+/* ─── Installing HXtra ─────────────────────────────────────────────────────── */
+
+.setting-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle:disabled,
+.segmented button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* The DSP's spare memory: what NAM A2 Lite's blocks take, then the features turned on. */
+.dsp-room {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--t3k-line);
+}
+
+.meter {
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--t3k-surface-2);
+  overflow: hidden;
+}
+
+.meter > span {
+  height: 100%;
+  transition: width 0.2s;
+}
+
+.meter-nam {
+  background: var(--t3k-link);
+}
+
+.meter-used {
+  background: var(--t3k-muted-2);
+}
+
+.meter-text {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--t3k-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.setting-text .cost {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.setting-text .cost-full {
+  color: var(--t3k-warning);
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+}
+
+.status-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.status-ok .status-title .icon {
+  color: var(--t3k-success);
+}
+
+.status-bad {
+  border-color: color-mix(in srgb, var(--t3k-danger) 55%, transparent);
+}
+
+.status-bad .status-title .icon {
+  color: var(--t3k-danger);
+}
+
+.progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--t3k-surface-2);
+  overflow: hidden;
+}
+
+.progress > i {
+  display: block;
+  height: 100%;
+  background: var(--t3k-link);
+  transition: width 0.3s;
+}
+
+.log summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--t3k-muted);
+}
+
+.log pre {
+  max-height: 240px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  overflow: auto;
+  border: 1px solid var(--t3k-line);
+  border-radius: var(--t3k-radius-sm);
+  background: var(--t3k-canvas);
+  color: var(--t3k-muted-2);
+  font: 12px/1.5 var(--t3k-font-mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 /* ─── Splash and setup ─────────────────────────────────────────────────────── */
 
 .center {
@@ -1618,6 +1737,11 @@ kbd {
   }
 
   .toggle::after {
+    transition: none;
+  }
+
+  .meter > span,
+  .progress > i {
     transition: none;
   }
 
